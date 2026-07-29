@@ -1,0 +1,10 @@
+node_modules/
+.pnpm-store/
+dist/
+.next/
+.env
+.env.local
+generated/prisma/
+*.log
+.DS_Store
+Thumbs.db

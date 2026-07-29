@@ -1,0 +1,16 @@
+{
+  "name": "fishguide",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FishGuide — Sistema Inteligente de Planejamento de Pescarias",
+  "scripts": {
+    "dev": "pnpm --parallel -r run dev",
+    "build": "pnpm -r run build",
+    "lint": "pnpm -r run lint",
+    "format": "prettier --write \"packages/**/*.{ts,tsx,js,json}\""
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
+  }
+}

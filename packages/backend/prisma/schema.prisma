@@ -1,0 +1,221 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  VISITOR
+  FISHERMAN
+  COLLABORATOR
+  SPECIALIST
+  MODERATOR
+  ADMIN
+}
+
+enum SpotType {
+  BEACH
+  RIVER
+  MANGROVE
+  ROCKY_SHORE
+  DAM
+  OPEN_SEA
+  ESTUARY
+  CANAL
+}
+
+model User {
+  id             String   @id @default(uuid()) @db.Uuid
+  name           String
+  email          String   @unique
+  passwordHash   String   @map("password_hash")
+  phone          String?
+  birthDate      DateTime? @map("birth_date")
+  avatar         String?
+  bio            String?
+  city           String?
+  state          String?
+  country        String?
+  role           UserRole @default(FISHERMAN)
+  privacy        String   @default("public")
+  verified       Boolean  @default(false)
+  status         String   @default("active")
+  lastLogin      DateTime? @map("last_login")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  fishingSpots FishingSpot[]
+  fishingTrips FishingTrip[]
+  posts        Post[]
+  comments     Comment[]
+  reviews      Review[]
+  favorites    Favorite[]
+
+  @@map("users")
+}
+
+model FishingSpot {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  latitude    Float
+  longitude   Float
+  description String?
+  spotType    SpotType? @map("spot_type")
+  accessType  String?   @map("access_type")
+  structure   String?
+  photos      String[]
+  privacy     String   @default("public")
+  rating      Float    @default(0)
+  userId      String   @map("user_id") @db.Uuid
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  location   location?  @relation("SpotLocation")
+  species    SpeciesOnSpot[]
+  trips      FishingTrip[]
+  favorites  Favorite[]
+  reviews    Review[]
+
+  @@index([latitude, longitude])
+  @@map("fishing_spots")
+}
+
+model Species {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  scientificName String? @map("scientific_name")
+  photo        String?
+  averageWeight Float?   @map("average_weight")
+  averageLength Float?   @map("average_length")
+  habitat      String?
+  feeding      String?
+  bestSeason   String?   @map("best_season")
+  bestTide     String?   @map("best_tide")
+  bestMoon     String?   @map("best_moon")
+  bestBait     String?   @map("best_bait")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  spots SpeciesOnSpot[]
+  catches Catch[]
+
+  @@map("species")
+}
+
+model SpeciesOnSpot {
+  speciesId  String @map("species_id") @db.Uuid
+  spotId     String @map("spot_id") @db.Uuid
+  species    Species @relation(fields: [speciesId], references: [id])
+  spot       FishingSpot @relation(fields: [spotId], references: [id])
+
+  @@id([speciesId, spotId])
+  @@map("species_on_spots")
+}
+
+model FishingTrip {
+  id          String   @id @default(uuid()) @db.Uuid
+  date        DateTime
+  userId      String   @map("user_id") @db.Uuid
+  user        User     @relation(fields: [userId], references: [id])
+  spotId      String?  @map("spot_id") @db.Uuid
+  spot        FishingSpot? @relation(fields: [spotId], references: [id])
+  notes       String?
+  privacy     String   @default("public")
+  weatherSnapshot Json? @map("weather_snapshot")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  catches Catch[]
+
+  @@map("fishing_trips")
+}
+
+model Catch {
+  id          String   @id @default(uuid()) @db.Uuid
+  tripId      String   @map("trip_id") @db.Uuid
+  trip        FishingTrip @relation(fields: [tripId], references: [id])
+  speciesId   String   @map("species_id") @db.Uuid
+  species     Species  @relation(fields: [speciesId], references: [id])
+  weight      Float?
+  length      Float?
+  photo       String?
+  time        DateTime?
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("catches")
+}
+
+model Post {
+  id        String   @id @default(uuid()) @db.Uuid
+  content   String
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id])
+  likes     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  comments  Comment[]
+  favorites Favorite[]
+
+  @@map("posts")
+}
+
+model Comment {
+  id        String   @id @default(uuid()) @db.Uuid
+  content   String
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id])
+  postId    String   @map("post_id") @db.Uuid
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("comments")
+}
+
+model Review {
+  id        String   @id @default(uuid()) @db.Uuid
+  rating    Int
+  comment   String?
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id])
+  spotId    String   @map("spot_id") @db.Uuid
+  spot      FishingSpot @relation(fields: [spotId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, spotId])
+  @@map("reviews")
+}
+
+model Favorite {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id])
+  spotId    String?  @map("spot_id") @db.Uuid
+  spot      FishingSpot? @relation(fields: [spotId], references: [id])
+  postId    String?  @map("post_id") @db.Uuid
+  post      Post?    @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("favorites")
+}
+
+model location {
+  id        String   @id @default(uuid()) @db.Uuid
+  spotId    String   @unique @map("spot_id") @db.Uuid
+  spot      FishingSpot @relation("SpotLocation", fields: [spotId], references: [id])
+  latitude  Float
+  longitude Float
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([latitude, longitude])
+  @@map("locations")
+}

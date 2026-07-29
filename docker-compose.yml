@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: fishguide-db
+    environment:
+      POSTGRES_DB: fishguide
+      POSTGRES_USER: fishguide
+      POSTGRES_PASSWORD: fishguide_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: fishguide-cache
+    ports:
+      - "6380:6379"
+
+volumes:
+  pgdata:
