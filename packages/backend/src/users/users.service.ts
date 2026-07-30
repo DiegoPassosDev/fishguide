@@ -21,6 +21,7 @@ export class UsersService {
         country: true,
         role: true,
         createdAt: true,
+        updatedAt: true,
       },
     });
 
@@ -46,6 +47,8 @@ export class UsersService {
         state: true,
         country: true,
         role: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
   }
