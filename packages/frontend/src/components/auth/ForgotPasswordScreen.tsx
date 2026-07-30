@@ -21,7 +21,7 @@ export function ForgotPasswordScreen({
   goBack,
 }: ForgotPasswordScreenProps) {
   return (
-    <div className="flex w-[340px] flex-col">
+    <div className="flex w-85 flex-col">
       <div className="flex items-center gap-1.5 pb-5">
         <svg
           width="18"
@@ -68,7 +68,7 @@ export function ForgotPasswordScreen({
             e.preventDefault();
             handleSubmit();
           }}
-          className="flex flex-col gap-[18px]"
+          className="flex flex-col gap-4.5"
         >
           <InputField
             label="Email"
@@ -82,7 +82,7 @@ export function ForgotPasswordScreen({
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full rounded-full bg-gradient-to-b from-teal-bright to-teal py-3.5 font-heading text-sm font-semibold text-[#06251f] shadow-lg shadow-teal/30 transition-transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-teal/40 disabled:opacity-60"
+            className="w-full rounded-full bg-linear-to-b from-teal-bright to-teal py-3.5 font-heading text-sm font-semibold text-[#06251f] shadow-lg shadow-teal/30 transition-transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-teal/40 disabled:opacity-60"
           >
             {isLoading ? "Enviando..." : "Enviar link"}
           </button>

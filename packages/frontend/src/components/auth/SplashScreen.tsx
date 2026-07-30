@@ -30,7 +30,7 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
         </div>
 
         <div className="text-center">
-          <h1 className="font-heading text-[60px] leading-none text-white">
+          <h1 className="font-heading text-6xl leading-none text-white">
             <span className="font-bold">Fish</span>
             <span className="font-normal">Guide</span>
           </h1>
@@ -44,7 +44,7 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
 
       <button
         onClick={onStart}
-        className="rounded-full bg-gradient-to-b from-teal-bright to-teal px-11 py-3.5 font-heading text-sm font-semibold text-white shadow-lg shadow-teal/30 transition-transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-teal/40"
+        className="rounded-full bg-linear-to-b from-teal-bright to-teal px-11 py-3.5 font-heading text-sm font-semibold text-white shadow-lg shadow-teal/30 transition-transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-teal/40"
       >
         Embarque na Aventura
       </button>

@@ -34,7 +34,7 @@ export function useLogin() {
 
     try {
       await login(email, password);
-      router.push("/home");
+      router.push("/today");
     } catch (err: unknown) {
       if (err && typeof err === "object" && "response" in err) {
         const axiosErr = err as { response?: { status?: number; data?: { message?: string | string[] } } };

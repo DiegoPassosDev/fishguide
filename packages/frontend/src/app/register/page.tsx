@@ -6,5 +6,9 @@ import { RegisterScreen } from "@/components/auth/RegisterScreen";
 export default function RegisterPage() {
   const register = useRegister();
 
-  return <RegisterScreen {...register} />;
+  return (
+    <div className="flex flex-1 flex-col items-center">
+      <RegisterScreen {...register} />
+    </div>
+  );
 }

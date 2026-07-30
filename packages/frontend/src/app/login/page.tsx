@@ -6,5 +6,9 @@ import { LoginScreen } from "@/components/auth/LoginScreen";
 export default function LoginPage() {
   const login = useLogin();
 
-  return <LoginScreen {...login} />;
+  return (
+    <div className="flex flex-1 flex-col items-center">
+      <LoginScreen {...login} />
+    </div>
+  );
 }

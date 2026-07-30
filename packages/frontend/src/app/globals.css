@@ -55,6 +55,8 @@
 }
 
 :root {
+  --logo-start: #60a5fa;
+  --logo-end: #22d3b8;
   --background: #0a1628;
   --foreground: #ffffff;
   --card: rgba(255, 255, 255, 0.06);
@@ -90,12 +92,44 @@
   --sidebar-ring: #22d3b8;
 }
 
+.light {
+  --logo-start: #2563eb;
+  --logo-end: #16a893;
+  --background: #eef1f6;
+  --foreground: #1c2b3a;
+  --card: #ffffff;
+  --card-foreground: #1c2b3a;
+  --popover: #ffffff;
+  --popover-foreground: #1c2b3a;
+  --primary: #16a893;
+  --primary-foreground: #ffffff;
+  --secondary: #e2e6ec;
+  --secondary-foreground: #4a5568;
+  --muted: #e2e6ec;
+  --muted-foreground: #8993a3;
+  --accent: #e7f1fc;
+  --accent-foreground: #1c2b3a;
+  --destructive: #d62828;
+  --destructive-foreground: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --input: rgba(0, 0, 0, 0.10);
+  --ring: #16a893;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1c2b3a;
+  --sidebar-primary: #16a893;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef1f6;
+  --sidebar-accent-foreground: #1c2b3a;
+  --sidebar-border: rgba(0, 0, 0, 0.06);
+  --sidebar-ring: #16a893;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-300;
   }
   html {
     @apply font-sans;

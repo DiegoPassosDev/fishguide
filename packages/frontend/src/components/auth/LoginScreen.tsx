@@ -27,7 +27,7 @@ export function LoginScreen({
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="flex w-[340px] flex-1 flex-col justify-start py-12">
+    <div className="flex w-85 flex-1 flex-col justify-start py-12">
       <div className="flex flex-col items-center gap-1">
           <div className="flex size-28 items-center justify-center">
             <svg
@@ -96,7 +96,7 @@ export function LoginScreen({
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full rounded-full bg-gradient-to-b from-teal-bright to-teal py-3.5 font-heading text-sm font-semibold text-[#06251f] shadow-lg shadow-teal/30 transition-transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-teal/40 disabled:opacity-60"
+          className="w-full rounded-full bg-linear-to-b from-teal-bright to-teal py-3.5 font-heading text-sm font-semibold text-[#06251f] shadow-lg shadow-teal/30 transition-transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-teal/40 disabled:opacity-60"
         >
           {isLoading ? "Entrando..." : "Entrar"}
         </button>
