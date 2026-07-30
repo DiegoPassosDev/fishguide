@@ -10,5 +10,6 @@ Imagens/
 *.log
 SESSÃO.md
 nul
+packages/backend;C/
 .DS_Store
 Thumbs.db
