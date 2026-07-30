@@ -18,6 +18,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "FishGuide",
   description: "Seu Guia Inteligente de Pesca",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -30,7 +33,7 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${poppins.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col items-center justify-center overflow-hidden overscroll-none bg-background font-sans">
+      <body className="flex min-h-full flex-col bg-background font-sans antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>
