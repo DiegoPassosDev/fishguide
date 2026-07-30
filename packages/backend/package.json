@@ -4,11 +4,12 @@
   "description": "",
   "author": "",
   "private": true,
+  "type": "module",
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "dev": "tsx watch src/main.ts",
+    "dev": "nest start --watch",
     "start": "node dist/src/main.js",
     "start:dev": "tsx watch src/main.ts",
     "start:debug": "nest start --debug --watch",

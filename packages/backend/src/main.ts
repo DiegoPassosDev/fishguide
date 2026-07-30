@@ -2,14 +2,17 @@ import "reflect-metadata";
 import { config } from "dotenv";
 import { resolve } from "path";
 
-config({ path: resolve(__dirname, "../../.env") });
-
-import { NestFactory } from "@nestjs/core";
-import { ValidationPipe } from "@nestjs/common";
-import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
-import { AppModule } from "./app.module.js";
+config({ path: resolve(process.cwd(), ".env") });
 
 async function bootstrap() {
+  const [{ NestFactory }, { ValidationPipe }, { SwaggerModule, DocumentBuilder }, { AppModule }] =
+    await Promise.all([
+      import("@nestjs/core"),
+      import("@nestjs/common"),
+      import("@nestjs/swagger"),
+      import("./app.module.js"),
+    ]);
+
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix("api/v1");

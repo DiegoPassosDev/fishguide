@@ -6,6 +6,10 @@ dist/
 .env.local
 **/generated/prisma/
 documentos/
+Imagens/
 *.log
+SESSÃO.md
+nul
+packages/backend;C/
 .DS_Store
 Thumbs.db

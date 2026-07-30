@@ -31,33 +31,61 @@ export class AuthService {
         email: dto.email,
         passwordHash,
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
-    return this.signToken(user.id, user.email);
+    return this.signToken(user);
   }
 
   async login(dto: LoginDto) {
-    const user = await this.prisma.client.user.findUnique({
+    const row = await this.prisma.client.user.findUnique({
       where: { email: dto.email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        passwordHash: true,
+        avatar: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
-    if (!user) throw new UnauthorizedException("Credenciais inválidas");
+    if (!row) throw new UnauthorizedException("Usuário não cadastrado");
 
-    const valid = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!valid) throw new UnauthorizedException("Credenciais inválidas");
+    const valid = await bcrypt.compare(dto.password, row.passwordHash);
+    if (!valid) throw new UnauthorizedException("Senha incorreta");
 
     await this.prisma.client.user.update({
-      where: { id: user.id },
+      where: { id: row.id },
       data: { lastLogin: new Date() },
     });
 
-    return this.signToken(user.id, user.email);
+    const { passwordHash: _, ...user } = row;
+    return this.signToken(user);
   }
 
-  private signToken(userId: string, email: string) {
-    const payload = { sub: userId, email };
+  private signToken(user: {
+    id: string;
+    name: string;
+    email: string;
+    avatar: string | null;
+    role: string;
+    createdAt: Date;
+    updatedAt: Date;
+  }) {
+    const payload = { sub: user.id, email: user.email };
     const token = this.jwt.sign(payload);
 
-    return { accessToken: token, userId, email };
+    return { accessToken: token, user };
   }
 }
