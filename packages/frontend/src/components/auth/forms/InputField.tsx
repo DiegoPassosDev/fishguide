@@ -25,17 +25,17 @@ export function InputField({
 }: InputFieldProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium uppercase tracking-wide text-mist">
+      <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </label>
-      <div className="flex items-center gap-2.5 rounded-xl border border-input bg-white/5 px-3.5 py-3 transition-colors focus-within:border-teal-bright">
+      <div className="flex items-center gap-2.5 rounded-xl border border-input bg-muted/50 px-3.5 py-3 transition-colors focus-within:border-teal-bright">
         {icon && <span className="shrink-0 opacity-50">{icon}</span>}
         <input
           type={type}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/25"
+          className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/60"
         />
         {rightIcon && (
           <button

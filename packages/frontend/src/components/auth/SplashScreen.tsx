@@ -10,14 +10,14 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
       <div className="flex-[0.85]" />
 
       <div className="flex flex-col items-center gap-6">
-        <div className="relative flex size-56 items-center justify-center">
+        <div className="relative flex size-56 items-center justify-center text-foreground">
           <div className="absolute -inset-16 rounded-full bg-teal/15 blur-3xl" />
           <svg
             className="size-52 drop-shadow-[0_0_32px_rgba(210,245,235,0.6)]"
             viewBox="0 0 120 125"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <g transform="translate(0,125) scale(0.1,-0.1)" fill="#ffffff">
+            <g transform="translate(0,125) scale(0.1,-0.1)" fill="currentColor">
               <path d="M560 1055 c0 -42 3 -55 15 -55 10 0 15 10 15 33 l0 32 26 -32 c14 -18 30 -33 35 -33 5 0 9 25 9 55 0 30 -4 55 -10 55 -5 0 -10 -15 -10 -32 l0 -33 -26 33 c-39 49 -54 43 -54 -23z" />
               <path d="M606 972 c-14 -23 -83 -202 -77 -202 3 0 24 7 47 16 37 14 44 14 79 0 21 -9 40 -15 42 -13 3 4 -73 197 -81 204 -2 3 -7 0 -10 -5z" />
               <path d="M488 866 c-122 -43 -214 -141 -253 -270 -10 -34 -18 -42 -61 -58 -27 -11 -53 -23 -57 -27 -5 -5 16 -18 47 -30 52 -22 55 -25 66 -72 12 -49 22 -57 50 -40 11 7 14 33 15 108 0 79 4 107 22 145 28 61 102 140 151 162 28 13 42 27 51 52 7 20 11 37 9 39 -1 2 -19 -2 -40 -9z" />
@@ -30,11 +30,11 @@ export function SplashScreen({ onStart }: SplashScreenProps) {
         </div>
 
         <div className="text-center">
-          <h1 className="font-heading text-6xl leading-none text-white">
+          <h1 className="font-heading text-6xl leading-none text-foreground">
             <span className="font-bold">Fish</span>
             <span className="font-normal">Guide</span>
           </h1>
-          <p className="mt-4 text-lg tracking-wide text-mist">
+          <p className="mt-4 text-lg tracking-wide text-muted-foreground">
             Seu Guia Inteligente de Pesca.
           </p>
         </div>

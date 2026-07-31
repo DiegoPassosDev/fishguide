@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Sun, Moon } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
+import { Bell } from "lucide-react";
 import { Logo } from "./Logo";
 
 interface HeaderProps {
@@ -10,13 +9,7 @@ interface HeaderProps {
 }
 
 export function Header({ lastUpdated }: HeaderProps) {
-  const { theme, toggle } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [timeAgo, setTimeAgo] = useState("");
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!lastUpdated) return;
@@ -37,30 +30,13 @@ export function Header({ lastUpdated }: HeaderProps) {
       <div className="flex items-start gap-3">
         <Logo />
         {timeAgo && (
-          <span className="mt-7 text-[11px] text-muted-foreground">
+          <span className="mt-7 ml-2 whitespace-nowrap text-[11px] text-muted-foreground">
             Atualizado há {timeAgo}
           </span>
         )}
       </div>
 
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={toggle}
-          className="flex size-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-accent"
-          title={theme === "dark" ? "Tema claro" : "Tema escuro"}
-        >
-          {mounted ? (
-            theme === "dark" ? (
-              <Sun size={16} className="text-muted-foreground" />
-            ) : (
-              <Moon size={16} className="text-muted-foreground" />
-            )
-          ) : (
-            <div className="size-4" />
-          )}
-        </button>
-
         <button
           type="button"
           className="relative flex size-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-accent"

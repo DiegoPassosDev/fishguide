@@ -1,4 +1,4 @@
-# VISÃO GERAL DO PROJETO
+# Visão Geral do Projeto
 
 **FishGuide**
 

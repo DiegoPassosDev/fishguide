@@ -164,6 +164,14 @@ POST /auth/refresh
 
 POST /auth/forgot-password
 
+**Alteração de senha** *(adicionado na implementação — 31/07/2026)*
+
+POST /auth/change-password
+
+- Autenticado (Bearer Token).
+- Body: `currentPassword` e `newPassword` (mínimo 8 caracteres).
+- Retorna `{ message }` ou 401 se a senha atual estiver incorreta.
+
 **Usuários**
 
 GET /users/me
@@ -171,6 +179,8 @@ GET /users/me
 PATCH /users/me
 
 DELETE /users/me
+
+*Status: GET e PATCH `/users/me` implementados; DELETE ainda não. `POST /auth/logout`, `POST /auth/refresh` e `POST /auth/reset-password` ainda não existem no backend.*
 
 **Pesqueiros**
 

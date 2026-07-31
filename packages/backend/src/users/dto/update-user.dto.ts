@@ -1,5 +1,5 @@
-import { IsOptional, IsString } from "class-validator";
-import { ApiPropertyOptional } from "@nestjs/swagger";
+import { IsDateString, IsIn, IsOptional, IsString } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateUserDto {
   @ApiPropertyOptional()
@@ -36,4 +36,17 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   avatar?: string;
+
+  @ApiPropertyOptional({
+    description: 'Privacidade do perfil',
+    enum: ['public', 'friends', 'private'],
+  })
+  @IsIn(['public', 'friends', 'private'])
+  @IsOptional()
+  privacy?: string;
+
+  @ApiPropertyOptional({ description: 'Data de nascimento (ISO 8601)' })
+  @IsDateString()
+  @IsOptional()
+  birthDate?: string;
 }
