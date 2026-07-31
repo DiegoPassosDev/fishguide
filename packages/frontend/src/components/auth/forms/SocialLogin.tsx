@@ -4,15 +4,15 @@ export function SocialLogin() {
   return (
     <>
       <div className="flex items-center gap-3">
-        <div className="h-px flex-1 bg-white/10" />
-        <span className="text-xs uppercase tracking-wide text-mist">ou continue com</span>
-        <div className="h-px flex-1 bg-white/10" />
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs uppercase tracking-wide text-muted-foreground">ou continue com</span>
+        <div className="h-px flex-1 bg-border" />
       </div>
 
       <div className="flex gap-3">
         <button
           type="button"
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs text-white transition-colors hover:bg-white/10"
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-muted/50 px-3 py-2.5 text-xs text-foreground transition-colors hover:bg-muted"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -24,9 +24,9 @@ export function SocialLogin() {
         </button>
         <button
           type="button"
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs text-white transition-colors hover:bg-white/10"
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-muted/50 px-3 py-2.5 text-xs text-foreground transition-colors hover:bg-muted"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1.5 15.3h-3v-6.3H9v-2.1h1.5V7.5c0-1.8.9-2.8 2.7-2.8h1.8v2.1h-1.2c-.6 0-.9.3-.9 1v1.8h2.1l-.3 2.1h-1.8v6.3z" />
           </svg>
           Apple

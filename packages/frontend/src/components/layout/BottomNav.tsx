@@ -8,7 +8,7 @@ const items = [
   { label: "Mapa", icon: Map, href: "/mapa" },
   { label: null, icon: null, href: null },
   { label: "Comunidade", icon: UsersRound, href: "/comunidade" },
-  { label: "Perfil", icon: User, href: "/perfil" },
+  { label: "Perfil", icon: User, href: "/profile" },
 ];
 
 export function BottomNav() {

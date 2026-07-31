@@ -1,6 +1,6 @@
 "use client";
 
-import { Sunrise, Sunset, Moon, MoonStar } from "lucide-react";
+import { Sunrise, Moon, MoonStar } from "lucide-react";
 import { MoonPhaseIcon } from "./MoonPhaseIcon";
 
 interface AstronomyCardProps {

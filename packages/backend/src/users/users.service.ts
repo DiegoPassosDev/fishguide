@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service.js";
-import { UpdateUserDto } from "./dto/update-user.dto.js";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { UpdateUserDto } from './dto/update-user.dto.js';
 
 @Injectable()
 export class UsersService {
@@ -19,13 +19,15 @@ export class UsersService {
         city: true,
         state: true,
         country: true,
+        privacy: true,
+        birthDate: true,
         role: true,
         createdAt: true,
         updatedAt: true,
       },
     });
 
-    if (!user) throw new NotFoundException("Usuário não encontrado");
+    if (!user) throw new NotFoundException('Usuário não encontrado');
 
     return user;
   }
@@ -46,6 +48,8 @@ export class UsersService {
         city: true,
         state: true,
         country: true,
+        privacy: true,
+        birthDate: true,
         role: true,
         createdAt: true,
         updatedAt: true,

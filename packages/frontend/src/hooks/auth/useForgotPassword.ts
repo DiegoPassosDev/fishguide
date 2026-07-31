@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import * as authApi from "@/lib/auth.api";
 import { useToast } from "@/contexts/ToastContext";
 
 export function useForgotPassword() {
-  const router = useRouter();
   const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [success, setSuccess] = useState(false);
@@ -40,14 +38,11 @@ export function useForgotPassword() {
     }
   };
 
-  const goBack = () => router.back();
-
   return {
     email,
     success,
     isLoading,
     handleChange,
     handleSubmit,
-    goBack,
   };
 }

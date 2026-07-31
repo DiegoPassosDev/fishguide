@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useState, useEffect, useCallback, type ReactNode } from "react";
-import type { User } from "@/types/auth";
+import type { UpdateProfileDto, User } from "@/types/auth";
 import * as authApi from "@/lib/auth.api";
 
 interface AuthContextType {
@@ -11,6 +11,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateUser: (data: UpdateProfileDto) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -60,8 +61,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback(async (data: UpdateProfileDto) => {
+    const updated = await authApi.updateProfile(data);
+    setUser(updated);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
