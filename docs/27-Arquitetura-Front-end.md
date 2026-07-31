@@ -359,6 +359,8 @@ Estatísticas
 
 Perfil
 
+*Status (31/07/2026): a Bottom Navigation está implementada com os itens Hoje (`/today`), Mapa, Pescar (FAB), Comunidade e Perfil (`/profile`). As rotas `/mapa`, `/comunidade` e `/pescar` ainda não possuem páginas. Há também as telas de autenticação: `/` (splash), `/login`, `/register` e `/forgot-password`.*
+
 ## 13. Modo Campo
 
 Uma funcionalidade que considero essencial.
@@ -456,7 +458,9 @@ Suporte:
 
 - claro; 
 - escuro; 
-- modo noturno de pesca. 
+- modo noturno de pesca.
+
+*Status (31/07/2026): claro e escuro implementados com alternância persistida no dispositivo; o modo noturno de pesca ainda não.* 
 
 ## 20. Notificações
 

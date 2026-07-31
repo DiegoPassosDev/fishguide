@@ -106,7 +106,7 @@ def table_to_md(table) -> str:
     return '\n'.join(lines)
 
 
-def convert_docx_to_md(filepath: str) -> str:
+def convert_docx_to_md(filepath: str) -> tuple[str, str]:
     doc = Document(filepath)
 
     lines = []
@@ -195,11 +195,15 @@ def convert_docx_to_md(filepath: str) -> str:
         lines.append(table_to_md(table))
         lines.append('')
 
-    return '\n'.join(lines).strip()
+    return '\n'.join(lines).strip(), title
 
 
 def slugify(num, title=''):
-    return f'{int(num):02d}'
+    base = f'{int(num):02d}'
+    if title:
+        safe = re.sub(r'[–—\s]+', '-', title).strip('-')
+        return f'{base}-{safe}'
+    return base
 
 
 def main():
@@ -211,10 +215,10 @@ def main():
         src = os.path.join(DOCS_DIR, fname)
         print(f'Converting: {fname}...', end=' ')
         try:
-            md = convert_docx_to_md(src)
+            md, title = convert_docx_to_md(src)
             num = re.search(r'(\d+)', fname)
             n = num.group(1) if num else '99'
-            out_name = f'{slugify(n)}.md'
+            out_name = f'{slugify(n, title)}.md'
             dst = os.path.join(OUT_DIR, out_name)
             with open(dst, 'w', encoding='utf-8') as f:
                 f.write(md)

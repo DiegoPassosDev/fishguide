@@ -638,3 +638,30 @@ Toda publicação poderá ser denunciada. Conteúdos denunciados ficarão dispon
 **Observações de Arquitetura**
 
 Este documento define **o que** o sistema deve fazer, não **como** será implementado. As decisões de arquitetura, banco de dados, APIs, fluxos e componentes serão detalhadas nos próximos documentos.
+
+## 7. Status de Implementação (31/07/2026)
+
+### Requisitos implementados
+
+- **RF-001** — Cadastro de usuários (`POST /auth/register`). ✔
+- **RF-002** — Login por email e senha (`POST /auth/login`). Login via Google/Apple é apenas visual, sem ação. ⚠
+- **RF-003** — Recuperação de senha (`POST /auth/forgot-password`) — valida se o email é cadastrado; o envio real de email ainda não é feito. ✔ (parcial)
+- **RF-004** — Editar perfil (`PATCH /users/me`): nome, cidade, estado, país, telefone e biografia. Foto (avatar) e "Modalidade de pesca" ainda não implementados. ⚠
+- **RF-005** — Privacidade do perfil (Público / Amigos / Privado). ✔
+
+### Funcionalidades adicionadas além desta especificação
+
+- **Alterar senha** (`POST /auth/change-password`) — troca de senha validando a senha atual.
+- **Tema claro/escuro** — alternância global persistida no dispositivo (`localStorage`), aplicada também às telas de autenticação.
+- **Unidades de medida** — peso (kg/lb) e temperatura (°C/°F).
+- **Preferências de notificação** — lembretes de marés e alertas de condições do tempo.
+- **Sair da conta** — logout disponível no perfil.
+- **Sobre o aplicativo** — versão e descrição exibidas no perfil.
+- **"Atualizado há X min"** — indicador de atualização dos dados no cabeçalho da tela HOJE.
+
+### Ainda não implementado
+
+- Módulos: Mapa, Diário, Comunidade, Espécies, Locais, Estatísticas, Equipamentos, Administração e Motor Inteligente. As rotas da navegação inferior para mapa, comunidade e "pescar" ainda não existem.
+- Tela HOJE com dados reais (atualmente utiliza dados mock).
+- Tema "automático" (seguir o sistema operacional).
+- Backend: troca de senha por link (`reset-password`), `refresh token` e `logout` no servidor.

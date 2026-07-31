@@ -359,6 +359,8 @@ Verde.
 
 Laranja.
 
+*Status (31/07/2026): além do modo escuro (padrão), o tema claro também foi implementado, com alternância persistida no dispositivo e aplicado a todas as telas, incluindo as de autenticação. O modo noturno de pesca ainda não foi implementado.*
+
 ## 23. Responsividade
 
 A interface será pensada inicialmente para smartphones.
