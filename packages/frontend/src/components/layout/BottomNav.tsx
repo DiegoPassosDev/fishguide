@@ -5,9 +5,9 @@ import { useRouter, usePathname } from "next/navigation";
 
 const items = [
   { label: "Hoje", icon: Home, href: "/today" },
-  { label: "Mapa", icon: Map, href: "/mapa" },
+  { label: "Mapa", icon: Map, href: "/map" },
   { label: null, icon: null, href: null },
-  { label: "Comunidade", icon: UsersRound, href: "/comunidade" },
+  { label: "Comunidade", icon: UsersRound, href: "/community" },
   { label: "Perfil", icon: User, href: "/profile" },
 ];
 
