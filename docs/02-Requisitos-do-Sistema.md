@@ -648,6 +648,16 @@ Este documento define **o que** o sistema deve fazer, não **como** será implem
 - **RF-003** — Recuperação de senha (`POST /auth/forgot-password`) — valida se o email é cadastrado; o envio real de email ainda não é feito. ✔ (parcial)
 - **RF-004** — Editar perfil (`PATCH /users/me`): nome, cidade, estado, país, telefone e biografia. Foto (avatar) e "Modalidade de pesca" ainda não implementados. ⚠
 - **RF-005** — Privacidade do perfil (Público / Amigos / Privado). ✔
+- **RF-020** — Exibir mapa interativo (mock estilizado). ✔
+- **RF-021** — Mostrar localização atual. ✔
+- **RF-022** — Mostrar locais cadastrados (mock). ✔
+- **RF-023** — Permitir pesquisar locais. ✔
+- **RF-024** — Permitir filtrar por categoria (Praia, Rio, Mangue, Costão, Represa, Mar aberto, Estuário, Canal). ✔
+- **RF-045** — Criar publicações (mock). ✔
+- **RF-046** — Curtir publicações. ✔
+- **RF-047** — Comentar publicações. ✔
+- **RF-048** — Compartilhar publicações. ✔
+- **RF-049** — Seguir usuários. ✔
 
 ### Funcionalidades adicionadas além desta especificação
 
@@ -661,7 +671,7 @@ Este documento define **o que** o sistema deve fazer, não **como** será implem
 
 ### Ainda não implementado
 
-- Módulos: Mapa, Diário, Comunidade, Espécies, Locais, Estatísticas, Equipamentos, Administração e Motor Inteligente. As rotas da navegação inferior para mapa, comunidade e "pescar" ainda não existem.
+- Módulos: Diário, Espécies, Locais, Estatísticas, Equipamentos, Administração e Motor Inteligente. A rota da navegação inferior para "pescar" (`/pescar`) ainda não existe; mapa (`/map`) e comunidade (`/community`) já possuem telas.
 - Tela HOJE com dados reais (atualmente utiliza dados mock).
 - Tema "automático" (seguir o sistema operacional).
 - Backend: troca de senha por link (`reset-password`), `refresh token` e `logout` no servidor.

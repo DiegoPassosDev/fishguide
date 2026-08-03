@@ -359,7 +359,7 @@ Estatísticas
 
 Perfil
 
-*Status (31/07/2026): a Bottom Navigation está implementada com os itens Hoje (`/today`), Mapa, Pescar (FAB), Comunidade e Perfil (`/profile`). A rota `/mapa` foi implementada com mapa estilizado (mock SVG), busca, filtros por categoria, localização e locais próximos. As rotas `/comunidade` e `/pescar` ainda não possuem páginas. Há também as telas de autenticação: `/` (splash), `/login`, `/register` e `/forgot-password`.*
+*Status (31/07/2026): a Bottom Navigation está implementada com os itens Hoje (`/today`), Mapa, Pescar (FAB), Comunidade e Perfil (`/profile`). A rota `/map` foi implementada com mapa estilizado (mock SVG), busca, filtros por categoria, localização e locais próximos. A rota `/community` foi implementada com feed organizado por assuntos (chips), curtir, comentar, compartilhar, seguir e criar publicação (mock, conforme RF-045 a 049 e doc 08 seção 8). A rota `/pescar` ainda não possui página. Há também as telas de autenticação: `/` (splash), `/login`, `/register` e `/forgot-password`.*
 
 ## 13. Modo Campo
 
