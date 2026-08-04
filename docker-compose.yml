@@ -2,6 +2,7 @@ services:
   postgres:
     image: postgis/postgis:16-3.4
     container_name: fishguide-db
+    restart: always
     environment:
       POSTGRES_DB: fishguide
       POSTGRES_USER: fishguide
