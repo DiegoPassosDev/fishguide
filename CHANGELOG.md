@@ -8,14 +8,23 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
 ## [Unreleased]
 
+## [2026-08-04]
+
 ### Adicionado
-- Módulo Diário (`/diary`): histórico cronológico de pescarias, estatísticas básicas, detalhes da pescaria, edição/exclusão e FAB "Pescar" expansível com atalhos Diário/Iniciar *(branch `feature/diary`, aguardando merge)*.
+- **Módulo Pesqueiros** (PR #13): API pública de pesqueiros (`GET /api/v1/fishing-spots`, `GET /api/v1/fishing-spots/:id`), integração do mapa com dados reais do banco, seed com 6 pesqueiros e detalhes com espécies navegáveis.
+- **Módulo Espécies** (PR #14): catálogo com listagem, busca e página de detalhe (`/species`); API pública `GET /api/v1/species` (busca, filtro por habitat, paginação) e CRUD restrito a ADMIN/SPECIALIST; seed ampliado para 8 espécies; fotos reais (Wikimedia Commons) no banner do detalhe e nas miniaturas da lista.
+
+### Alterado
+- `docker-compose.yml`: serviço `postgres` com `restart: always`, iniciando junto com o Docker Desktop.
 
 ## [2026-08-03]
 
 ### Adicionado
 - **Comunidade** (PR #8): feed organizado por assuntos (chips), criar publicação, curtir, comentar, compartilhar e seguir usuários (mock).
 - **Registro de pescarias** (`/pescar`, PR #9): fluxo "Estou Pescando" — iniciar/finalizar pescaria, cronômetro, capturas (espécie, peso, comprimento, foto, observações), edição/exclusão de capturas, local com geolocalização e snapshot automático de clima, maré, lua, pressão e vento (mock). Pescaria finalizada salva no `localStorage`.
+- **Módulo Diário** (`/diary`, PR #10): histórico cronológico de pescarias em cards, estatísticas básicas, modal de detalhes com capturas, edição/exclusão, dados em `localStorage` e FAB "Pescar" expansível com atalhos Diário/Iniciar.
+- **Padronização da documentação** (PR #11): `CHANGELOG.md` criado (Keep a Changelog), `docs/README.md` reescrito com índice por domínios TOGAF e cabeçalho padrão (Domínio, Status, Proprietário, Última revisão) nos 31 documentos.
+- Correção (PR #12): usuários não autenticados redirecionados para o login na página de perfil.
 
 ## [2026-07-31]
 
