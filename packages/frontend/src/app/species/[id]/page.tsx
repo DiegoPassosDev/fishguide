@@ -76,11 +76,11 @@ export default function SpeciesDetailPage() {
           <div className="space-y-3">
             <div className="rounded-3xl border border-border bg-card p-5">
               {species.photo ? (
-                <div className="relative overflow-hidden rounded-2xl">
+                <div className="relative overflow-hidden rounded-2xl bg-primary/5">
                   <img
                     src={species.photo}
                     alt={species.name}
-                    className="aspect-[16/9] w-full object-cover"
+                    className="mx-auto h-44 w-full object-contain"
                     loading="lazy"
                   />
                   <span className="absolute bottom-2 right-2 rounded-full bg-background/70 px-2 py-0.5 text-[10px] font-semibold text-foreground backdrop-blur">

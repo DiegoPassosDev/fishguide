@@ -107,7 +107,7 @@ export default function SpeciesPage() {
                   <img
                     src={s.photo}
                     alt={s.name}
-                    className="size-12 shrink-0 rounded-2xl object-cover"
+                    className="size-12 shrink-0 rounded-2xl bg-primary/10 object-contain"
                     loading="lazy"
                   />
                 ) : (
