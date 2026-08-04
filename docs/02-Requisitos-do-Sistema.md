@@ -663,6 +663,7 @@ Este documento define **o que** o sistema deve fazer, não **como** será implem
 - **RF-047** — Comentar publicações. ✔
 - **RF-048** — Compartilhar publicações. ✔
 - **RF-049** — Seguir usuários. ✔
+- **Diário** (`/diary`) — histórico cronológico de pescarias em cards (local, data/horário, espécies, peso total e snapshot de condições), estatísticas básicas (total de pescarias, capturas, peso total, maior peixe e espécie mais capturada), detalhes da pescaria (resumo, capturas e condições) e edição/exclusão de pescarias. A pescaria finalizada em `/pescar` é salva no `localStorage` (`fishguide:trips`) e passa a aparecer no Diário; na primeira visita, pescarias mock são semeadas como exemplo. ✔
 
 ### Funcionalidades adicionadas além desta especificação
 
@@ -676,7 +677,7 @@ Este documento define **o que** o sistema deve fazer, não **como** será implem
 
 ### Ainda não implementado
 
-- Módulos: Diário (histórico/timeline), Espécies, Locais, Estatísticas, Equipamentos, Administração e Motor Inteligente. Mapa (`/map`), comunidade (`/community`) e registro de pescaria (`/pescar`) já possuem telas.
+- Módulos: Espécies, Locais, Estatísticas, Equipamentos, Administração e Motor Inteligente. Mapa (`/map`), comunidade (`/community`), registro de pescaria (`/pescar`) e Diário (`/diary`) já possuem telas.
 - Tela HOJE com dados reais (atualmente utiliza dados mock).
 - Tema "automático" (seguir o sistema operacional).
 - Backend: troca de senha por link (`reset-password`), `refresh token` e `logout` no servidor.
