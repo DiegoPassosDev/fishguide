@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Bell, Fish } from "lucide-react";
 import { Logo } from "./Logo";
 
 interface HeaderProps {
@@ -9,6 +10,7 @@ interface HeaderProps {
 }
 
 export function Header({ lastUpdated }: HeaderProps) {
+  const router = useRouter();
   const [timeAgo, setTimeAgo] = useState("");
 
   useEffect(() => {
@@ -37,6 +39,14 @@ export function Header({ lastUpdated }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => router.push("/species")}
+          aria-label="Espécies"
+          className="flex size-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-accent"
+        >
+          <Fish size={18} className="text-muted-foreground" />
+        </button>
         <button
           type="button"
           className="relative flex size-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-accent"
