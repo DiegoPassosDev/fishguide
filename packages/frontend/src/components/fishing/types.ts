@@ -3,7 +3,7 @@ export interface Catch {
   species: string;
   weight: string;
   length: string;
-  notes: string;
+  notes?: string;
   photoUrl?: string;
   time: string;
 }
