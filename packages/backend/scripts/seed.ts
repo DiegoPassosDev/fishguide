@@ -26,16 +26,22 @@ async function main() {
 
   const speciesMap: Record<string, string> = {};
   for (const species of [
-    { name: 'Robalo', scientificName: 'Centropomus parallelus', bestBait: 'Tainha viva' },
-    { name: 'Corvina', scientificName: 'Micropogonias furnieri', bestBait: 'Camarão' },
-    { name: 'Garoupa', scientificName: 'Epinephelus marginatus', bestBait: 'Sardinha' },
-    { name: 'Tainha', scientificName: 'Mugil liza', bestBait: 'Isca natural' },
-    { name: 'Pescada', scientificName: 'Cynoscion acoupa', bestBait: 'Camarão' },
+    { name: 'Robalo', scientificName: 'Centropomus parallelus', photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Centropomus_parallelus.jpg/960px-Centropomus_parallelus.jpg', bestBait: 'Tainha viva', habitat: 'Estuários e mangues', feeding: 'Piscívoro', averageWeight: 5, averageLength: 70, bestSeason: 'Março a Junho', bestTide: 'Enchente', bestMoon: 'Lua cheia' },
+    { name: 'Corvina', scientificName: 'Micropogonias furnieri', photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Micropogonias_furnieri.jpg/960px-Micropogonias_furnieri.jpg', bestBait: 'Camarão', habitat: 'Fundo de areia/lama', feeding: 'Bentívoro', averageWeight: 2.5, averageLength: 60, bestSeason: 'Outono e Inverno', bestTide: 'Vazante', bestMoon: 'Lua nova' },
+    { name: 'Garoupa', scientificName: 'Epinephelus marginatus', photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Mero_%28Epinephelus_marginatus%29%2C_Madeira%2C_Portugal%2C_2019-05-31%2C_DD_24.jpg/960px-Mero_%28Epinephelus_marginatus%29%2C_Madeira%2C_Portugal%2C_2019-05-31%2C_DD_24.jpg', bestBait: 'Sardinha', habitat: 'Costões e naufrágios', feeding: 'Piscívoro', averageWeight: 8, averageLength: 90, bestSeason: 'Verão', bestTide: 'Qualquer', bestMoon: 'Lua nova' },
+    { name: 'Tainha', scientificName: 'Mugil liza', photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Tainha_%28Mugil_sp%29.png/960px-Tainha_%28Mugil_sp%29.png', bestBait: 'Isca natural', habitat: 'Praias e desembocaduras', feeding: 'Detritívoro', averageWeight: 2, averageLength: 50, bestSeason: 'Maio a Agosto', bestTide: 'Enchente', bestMoon: 'Lua cheia' },
+    { name: 'Pescada', scientificName: 'Cynoscion acoupa', photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Cynoscium_acoupa.png/960px-Cynoscium_acoupa.png', bestBait: 'Camarão', habitat: 'Bocas de rio e águas costeiras', feeding: 'Piscívoro', averageWeight: 6, averageLength: 80, bestSeason: 'Primavera', bestTide: 'Vazante', bestMoon: 'Lua nova' },
+    { name: 'Tucunaré', scientificName: 'Cichla ocellaris', photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Cichla_ocellaris_Dvur_zoo_1.jpg/960px-Cichla_ocellaris_Dvur_zoo_1.jpg', bestBait: 'Isca artificial', habitat: 'Águas calmas e represas', feeding: 'Piscívoro', averageWeight: 3, averageLength: 55, bestSeason: 'Outono', bestTide: 'Não se aplica', bestMoon: 'Lua minguante' },
+    { name: 'Robalo-peva', scientificName: 'Centropomus undecimalis', photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Centropomus_undecimalis.jpg/960px-Centropomus_undecimalis.jpg', bestBait: 'Corvina pequena', habitat: 'Manguezais e rios', feeding: 'Piscívoro', averageWeight: 7, averageLength: 100, bestSeason: 'Primavera e Verão', bestTide: 'Enchente', bestMoon: 'Lua cheia' },
+    { name: 'Carapau', scientificName: 'Caranx hippos', photo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Caranx_hippos_Brazil.jpg/960px-Caranx_hippos_Brazil.jpg', bestBait: 'Colher de metal', habitat: 'Arrebentação e águas abertas', feeding: 'Piscívoro', averageWeight: 4, averageLength: 70, bestSeason: 'Verão', bestTide: 'Maré alta', bestMoon: 'Lua cheia' },
   ]) {
-    let created = await prisma.species.findFirst({ where: { name: species.name } });
-    if (!created) {
-      created = await prisma.species.create({ data: species });
+    const existing = await prisma.species.findFirst({ where: { name: species.name } });
+    if (existing) {
+      const updated = await prisma.species.update({ where: { id: existing.id }, data: { photo: species.photo } });
+      speciesMap[species.name] = updated.id;
+      continue;
     }
+    const created = await prisma.species.create({ data: species });
     speciesMap[species.name] = created.id;
   }
 
@@ -89,7 +95,7 @@ async function main() {
       accessType: 'private',
       privacy: 'friends' as const,
       structure: 'Margens com vegetação',
-      species: ['Robalo'],
+      species: ['Robalo', 'Tucunaré'],
     },
     {
       name: 'Canal do Atalaia',

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Bell, Fish } from "lucide-react";
 import { Logo } from "./Logo";
 
 interface HeaderProps {
@@ -9,6 +10,7 @@ interface HeaderProps {
 }
 
 export function Header({ lastUpdated }: HeaderProps) {
+  const router = useRouter();
   const [timeAgo, setTimeAgo] = useState("");
 
   useEffect(() => {
@@ -27,25 +29,33 @@ export function Header({ lastUpdated }: HeaderProps) {
 
   return (
     <header className="flex items-center justify-between px-2 py-3">
-      <div className="flex items-start gap-3">
-        <Logo />
+      <Logo />
+
+      <div className="flex flex-col items-end gap-1.5">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => router.push("/species")}
+            aria-label="Espécies"
+            className="flex size-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-accent"
+          >
+            <Fish size={18} className="text-muted-foreground" />
+          </button>
+          <button
+            type="button"
+            className="relative flex size-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-accent"
+          >
+            <Bell size={18} className="text-muted-foreground" />
+            <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
+              3
+            </span>
+          </button>
+        </div>
         {timeAgo && (
-          <span className="mt-7 ml-2 whitespace-nowrap text-[11px] text-muted-foreground">
+          <span className="rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
             Atualizado há {timeAgo}
           </span>
         )}
-      </div>
-
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          className="relative flex size-9 items-center justify-center rounded-full bg-muted transition-colors hover:bg-accent"
-        >
-          <Bell size={18} className="text-muted-foreground" />
-          <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
-            3
-          </span>
-        </button>
       </div>
     </header>
   );

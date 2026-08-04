@@ -3,11 +3,18 @@ import { PrismaModule } from './prisma/prisma.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
 import { FishingSpotsModule } from './fishing-spots/fishing-spots.module.js';
+import { SpeciesModule } from './species/species.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, FishingSpotsModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    UsersModule,
+    FishingSpotsModule,
+    SpeciesModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
