@@ -26,11 +26,14 @@ async function main() {
 
   const speciesMap: Record<string, string> = {};
   for (const species of [
-    { name: 'Robalo', scientificName: 'Centropomus parallelus', bestBait: 'Tainha viva' },
-    { name: 'Corvina', scientificName: 'Micropogonias furnieri', bestBait: 'Camarão' },
-    { name: 'Garoupa', scientificName: 'Epinephelus marginatus', bestBait: 'Sardinha' },
-    { name: 'Tainha', scientificName: 'Mugil liza', bestBait: 'Isca natural' },
-    { name: 'Pescada', scientificName: 'Cynoscion acoupa', bestBait: 'Camarão' },
+    { name: 'Robalo', scientificName: 'Centropomus parallelus', bestBait: 'Tainha viva', habitat: 'Estuários e mangues', feeding: 'Piscívoro', averageWeight: 5, averageLength: 70, bestSeason: 'Março a Junho', bestTide: 'Enchente', bestMoon: 'Lua cheia' },
+    { name: 'Corvina', scientificName: 'Micropogonias furnieri', bestBait: 'Camarão', habitat: 'Fundo de areia/lama', feeding: 'Bentívoro', averageWeight: 2.5, averageLength: 60, bestSeason: 'Outono e Inverno', bestTide: 'Vazante', bestMoon: 'Lua nova' },
+    { name: 'Garoupa', scientificName: 'Epinephelus marginatus', bestBait: 'Sardinha', habitat: 'Costões e naufrágios', feeding: 'Piscívoro', averageWeight: 8, averageLength: 90, bestSeason: 'Verão', bestTide: 'Qualquer', bestMoon: 'Lua nova' },
+    { name: 'Tainha', scientificName: 'Mugil liza', bestBait: 'Isca natural', habitat: 'Praias e desembocaduras', feeding: 'Detritívoro', averageWeight: 2, averageLength: 50, bestSeason: 'Maio a Agosto', bestTide: 'Enchente', bestMoon: 'Lua cheia' },
+    { name: 'Pescada', scientificName: 'Cynoscion acoupa', bestBait: 'Camarão', habitat: 'Bocas de rio e águas costeiras', feeding: 'Piscívoro', averageWeight: 6, averageLength: 80, bestSeason: 'Primavera', bestTide: 'Vazante', bestMoon: 'Lua nova' },
+    { name: 'Tucunaré', scientificName: 'Cichla ocellaris', bestBait: 'Isca artificial', habitat: 'Águas calmas e represas', feeding: 'Piscívoro', averageWeight: 3, averageLength: 55, bestSeason: 'Outono', bestTide: 'Não se aplica', bestMoon: 'Lua minguante' },
+    { name: 'Robalo-peva', scientificName: 'Centropomus undecimalis', bestBait: 'Corvina pequena', habitat: 'Manguezais e rios', feeding: 'Piscívoro', averageWeight: 7, averageLength: 100, bestSeason: 'Primavera e Verão', bestTide: 'Enchente', bestMoon: 'Lua cheia' },
+    { name: 'Carapau', scientificName: 'Caranx hippos', bestBait: 'Colher de metal', habitat: 'Arrebentação e águas abertas', feeding: 'Piscívoro', averageWeight: 4, averageLength: 70, bestSeason: 'Verão', bestTide: 'Maré alta', bestMoon: 'Lua cheia' },
   ]) {
     let created = await prisma.species.findFirst({ where: { name: species.name } });
     if (!created) {
@@ -89,7 +92,7 @@ async function main() {
       accessType: 'private',
       privacy: 'friends' as const,
       structure: 'Margens com vegetação',
-      species: ['Robalo'],
+      species: ['Robalo', 'Tucunaré'],
     },
     {
       name: 'Canal do Atalaia',

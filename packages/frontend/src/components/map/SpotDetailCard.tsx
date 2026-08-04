@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Fish, Navigation, Star, X } from "lucide-react";
 import { CATEGORIES } from "./categories";
 import type { MapSpot } from "./types";
@@ -13,6 +14,7 @@ interface SpotDetailCardProps {
 }
 
 export function SpotDetailCard({ spot, detail, loading, onClose }: SpotDetailCardProps) {
+  const router = useRouter();
   const cat = CATEGORIES[spot.category];
   const Icon = cat.icon;
   const isSpot = spot.category === "pesqueiro";
@@ -53,13 +55,15 @@ export function SpotDetailCard({ spot, detail, loading, onClose }: SpotDetailCar
             <>
               <div className="flex flex-wrap gap-1.5">
                 {detail.species.map((s) => (
-                  <span
+                  <button
                     key={s.id}
-                    className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary"
+                    type="button"
+                    onClick={() => router.push(`/species/${s.id}`)}
+                    className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary transition-colors hover:bg-primary/20"
                   >
                     <Fish size={11} />
                     {s.name}
-                  </span>
+                  </button>
                 ))}
               </div>
               {detail.species.length === 0 && (
