@@ -2,6 +2,10 @@
 
 - **Projeto:** FishGuide
 - **Versão:** 1.0
+- **Domínio:** Application
+- **Status:** Approved
+- **Proprietário:** Diego Passos
+- **Última revisão:** 2026-08-03
 
 ## 1. Objetivo
 
@@ -294,8 +298,6 @@ O sistema suportará:
 Escuro 
 
 Automático (segue o sistema operacional) 
-
-*Status (31/07/2026): claro e escuro implementados com alternância persistida no dispositivo (`localStorage`). O modo automático ainda não foi implementado.*
 
 ## 13. Responsividade
 

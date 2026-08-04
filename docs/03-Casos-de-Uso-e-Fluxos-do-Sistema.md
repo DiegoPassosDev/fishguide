@@ -2,6 +2,10 @@
 
 - **Projeto:** FishGuide
 - **Versão:** 1.0
+- **Domínio:** Requirements
+- **Status:** Approved
+- **Proprietário:** Diego Passos
+- **Última revisão:** 2026-08-03
 
 ## 1. Objetivo
 

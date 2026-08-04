@@ -2,6 +2,10 @@
 
 - **Projeto:** FishGuide
 - **Versão:** 1.0
+- **Domínio:** Application
+- **Status:** Approved
+- **Proprietário:** Diego Passos
+- **Última revisão:** 2026-08-03
 
 ## 1. Objetivo
 
@@ -125,7 +129,7 @@ POST /auth/forgot-password
 
 POST /auth/reset-password
 
-**Alteração de senha** *(adicionado na implementação)*
+**Alteração de senha**
 
 POST /auth/change-password
 
@@ -135,13 +139,6 @@ Request:
 - newPassword (mínimo 8 caracteres)
 
 Requer autenticação (Bearer Token).
-
-### Status da implementação (31/07/2026)
-
-- ✔ Implementados: `POST /auth/register`, `POST /auth/login`, `POST /auth/forgot-password`, `POST /auth/change-password`.
-- ⚠ `POST /auth/refresh`, `POST /auth/logout` e `POST /auth/reset-password` ainda não existem no backend.
-- ⚠ O formato de resposta atual não usa o envelope `{ success, data, message, meta }` — retorna o dado diretamente. O Swagger fica disponível em `/api/docs`.
-- A resposta de login retorna `{ accessToken, user }` (sem `refreshToken`/`expiresIn`).
 
 ## 4. Usuários
 
@@ -166,8 +163,6 @@ GET /users/me/statistics
 Equipamentos
 
 GET /users/me/equipment
-
-*Os endpoints de favoritos, estatísticas e equipamentos ainda não foram implementados.*
 
 ## 5. Tela HOJE
 
@@ -202,8 +197,6 @@ Resposta:
 }
 
 Esse endpoint será responsável por montar praticamente toda a tela inicial.
-
-*Status (31/07/2026): o endpoint ainda não existe. A tela HOJE (`/today`) está implementada no frontend com dados mock.*
 
 ## 6. Locais
 

@@ -2,6 +2,10 @@
 
 - **Projeto:** FishGuide
 - **Versão:** 1.0
+- **Domínio:** Application
+- **Status:** Approved
+- **Proprietário:** Diego Passos
+- **Última revisão:** 2026-08-03
 
 ## 1. Objetivo
 
@@ -164,7 +168,7 @@ POST /auth/refresh
 
 POST /auth/forgot-password
 
-**Alteração de senha** *(adicionado na implementação — 31/07/2026)*
+**Alteração de senha**
 
 POST /auth/change-password
 
@@ -179,8 +183,6 @@ GET /users/me
 PATCH /users/me
 
 DELETE /users/me
-
-*Status: GET e PATCH `/users/me` implementados; DELETE ainda não. `POST /auth/logout`, `POST /auth/refresh` e `POST /auth/reset-password` ainda não existem no backend.*
 
 **Pesqueiros**
 

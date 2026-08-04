@@ -2,6 +2,10 @@
 
 - **Projeto:** FishGuide
 - **Versão:** 1.0
+- **Domínio:** Application
+- **Status:** Approved
+- **Proprietário:** Diego Passos
+- **Última revisão:** 2026-08-03
 
 ## 1. Objetivo
 
@@ -226,17 +230,6 @@ Espécies favoritas.
 Locais favoritos.
 
 Amigos.
-
-### Adicionado na implementação (31/07/2026)
-
-A tela de Perfil (`/profile`) também inclui:
-
-- Preferências — alternância de tema claro/escuro.
-- Unidades — peso (kg/lb) e temperatura (°C/°F).
-- Notificações — preferências de lembrete de marés e condições do tempo.
-- Segurança — alteração de senha (valida a senha atual).
-- Sair da conta (logout).
-- Sobre o aplicativo — versão e descrição.
 - Edição de perfil por modal (nome, cidade, estado, país, telefone, biografia, privacidade).
 
 As estatísticas, conquistas, equipamentos e favoritos ainda usam dados mock.
@@ -338,8 +331,6 @@ Alertas.
 Badges.
 
 Mensagens em tempo real.
-
-Na implementação atual, o sistema de Toast está funcional (mensagens de sucesso/erro/informação com auto-dismiss), há um badge fixo de notificações no cabeçalho e as preferências de notificação (marés e clima) já podem ser configuradas no Perfil.
 
 ## 14. Fluxo Principal
 

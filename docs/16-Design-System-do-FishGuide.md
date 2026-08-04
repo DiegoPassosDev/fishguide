@@ -2,6 +2,10 @@
 
 - **Projeto:** FishGuide
 - **Versão:** 1.0
+- **Domínio:** Application
+- **Status:** Approved
+- **Proprietário:** Diego Passos
+- **Última revisão:** 2026-08-03
 
 ## 1. Objetivo
 
@@ -358,8 +362,6 @@ Destaques:
 Verde.
 
 Laranja.
-
-*Status (31/07/2026): além do modo escuro (padrão), o tema claro também foi implementado, com alternância persistida no dispositivo e aplicado a todas as telas, incluindo as de autenticação. O modo noturno de pesca ainda não foi implementado.*
 
 ## 23. Responsividade
 
