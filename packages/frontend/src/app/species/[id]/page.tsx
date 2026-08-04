@@ -75,9 +75,23 @@ export default function SpeciesDetailPage() {
         ) : (
           <div className="space-y-3">
             <div className="rounded-3xl border border-border bg-card p-5">
-              <span className="flex size-16 items-center justify-center rounded-2xl bg-primary/10">
-                <Fish size={34} className="text-primary" />
-              </span>
+              {species.photo ? (
+                <div className="relative overflow-hidden rounded-2xl">
+                  <img
+                    src={species.photo}
+                    alt={species.name}
+                    className="aspect-[16/9] w-full object-cover"
+                    loading="lazy"
+                  />
+                  <span className="absolute bottom-2 right-2 rounded-full bg-background/70 px-2 py-0.5 text-[10px] font-semibold text-foreground backdrop-blur">
+                    Imagem: Wikimedia Commons
+                  </span>
+                </div>
+              ) : (
+                <span className="flex size-16 items-center justify-center rounded-2xl bg-primary/10">
+                  <Fish size={34} className="text-primary" />
+                </span>
+              )}
               <h1 className="mt-3 font-heading text-2xl font-bold text-foreground">{species.name}</h1>
               {species.scientificName && (
                 <p className="text-sm italic text-muted-foreground">{species.scientificName}</p>

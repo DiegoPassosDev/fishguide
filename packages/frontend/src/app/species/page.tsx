@@ -103,9 +103,18 @@ export default function SpeciesPage() {
                 onClick={() => router.push(`/species/${s.id}`)}
                 className="flex w-full items-center gap-3 rounded-3xl border border-border bg-card p-3 text-left transition-colors hover:border-primary/40"
               >
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
-                  <Fish size={22} className="text-primary" />
-                </span>
+                {s.photo ? (
+                  <img
+                    src={s.photo}
+                    alt={s.name}
+                    className="size-12 shrink-0 rounded-2xl object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
+                    <Fish size={22} className="text-primary" />
+                  </span>
+                )}
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-bold text-foreground">
                     {s.name}
