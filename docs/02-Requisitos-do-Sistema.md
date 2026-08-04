@@ -653,6 +653,11 @@ Este documento define **o que** o sistema deve fazer, não **como** será implem
 - **RF-022** — Mostrar locais cadastrados (mock). ✔
 - **RF-023** — Permitir pesquisar locais. ✔
 - **RF-024** — Permitir filtrar por categoria (Praia, Rio, Mangue, Costão, Represa, Mar aberto, Estuário, Canal). ✔
+- **RF-032** — Registrar pescaria (`/pescar`): iniciar, registrar capturas e finalizar (mock). ✔
+- **RF-033** — Captura com espécie, peso, comprimento, foto e observações. ✔
+- **RF-034** — Registro automático de pressão, maré, lua, temperatura e vento (snapshot no início da pescaria, mock). ✔
+- **RF-035** — Editar capturas. ✔
+- **RF-036** — Excluir capturas. ✔
 - **RF-045** — Criar publicações (mock). ✔
 - **RF-046** — Curtir publicações. ✔
 - **RF-047** — Comentar publicações. ✔
@@ -671,7 +676,7 @@ Este documento define **o que** o sistema deve fazer, não **como** será implem
 
 ### Ainda não implementado
 
-- Módulos: Diário, Espécies, Locais, Estatísticas, Equipamentos, Administração e Motor Inteligente. A rota da navegação inferior para "pescar" (`/pescar`) ainda não existe; mapa (`/map`) e comunidade (`/community`) já possuem telas.
+- Módulos: Diário (histórico/timeline), Espécies, Locais, Estatísticas, Equipamentos, Administração e Motor Inteligente. Mapa (`/map`), comunidade (`/community`) e registro de pescaria (`/pescar`) já possuem telas.
 - Tela HOJE com dados reais (atualmente utiliza dados mock).
 - Tema "automático" (seguir o sistema operacional).
 - Backend: troca de senha por link (`reset-password`), `refresh token` e `logout` no servidor.
