@@ -7,8 +7,8 @@ import type { MapSpot } from "./types";
 
 interface NearbySpotsSheetProps {
   spots: MapSpot[];
-  selectedId: number | null;
-  onSelect: (id: number | null) => void;
+  selectedId: MapSpot["id"] | null;
+  onSelect: (id: MapSpot["id"] | null) => void;
 }
 
 export function NearbySpotsSheet({ spots, selectedId, onSelect }: NearbySpotsSheetProps) {

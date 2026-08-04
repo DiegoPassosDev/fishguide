@@ -1,7 +1,7 @@
 export type MapCategory = "pesqueiro" | "evento" | "amigo" | "rampa" | "marina" | "loja";
 
 export interface MapSpot {
-  id: number;
+  id: string | number;
   name: string;
   category: MapCategory;
   x: number;

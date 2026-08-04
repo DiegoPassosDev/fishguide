@@ -6,11 +6,11 @@ import type { MapCategory, MapSpot } from "./types";
 
 interface MapCanvasProps {
   spots: MapSpot[];
-  selectedId: number | null;
+  selectedId: MapSpot["id"] | null;
   activeCategories: Set<MapCategory>;
   locating: boolean;
   showMe: boolean;
-  onSelect: (id: number | null) => void;
+  onSelect: (id: MapSpot["id"] | null) => void;
 }
 
 export function MapCanvas({ spots, selectedId, activeCategories, locating, showMe, onSelect }: MapCanvasProps) {
