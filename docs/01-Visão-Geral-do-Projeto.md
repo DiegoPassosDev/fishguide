@@ -6,6 +6,10 @@
 
 - **Versão:** 1.0
 - **Autor:** Diego Passos
+- **Domínio:** Business
+- **Status:** Approved
+- **Proprietário:** Diego Passos
+- **Última revisão:** 2026-08-03
 
 ## 1. Introdução
 

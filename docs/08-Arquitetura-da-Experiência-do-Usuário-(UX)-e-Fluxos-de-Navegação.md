@@ -2,6 +2,10 @@
 
 - **Projeto:** FishGuide
 - **Versão:** 1.0
+- **Domínio:** Application
+- **Status:** Approved
+- **Proprietário:** Diego Passos
+- **Última revisão:** 2026-08-03
 
 ## 1. Filosofia do FishGuide
 
@@ -218,19 +222,6 @@ Histórico.
 Espécies.
 
 Locais favoritos.
-
-### Adicionado na implementação (31/07/2026)
-
-Além dos itens acima, a tela de Perfil implementada inclui:
-
-- Preferências — tema claro/escuro.
-- Unidades — peso (kg/lb) e temperatura (°C/°F).
-- Notificações — lembretes de marés e condições do tempo.
-- Segurança — alteração de senha.
-- Sair da conta (logout).
-- Sobre o aplicativo.
-
-"Histórico" e "Amigos" ainda não foram implementados. Estatísticas, conquistas, equipamentos e favoritos usam dados mock.
 
 ## 10. Busca Inteligente
 

@@ -2,6 +2,10 @@
 
 - **Projeto:** FishGuide
 - **Versão:** 1.0
+- **Domínio:** Requirements
+- **Status:** Approved
+- **Proprietário:** Diego Passos
+- **Última revisão:** 2026-08-03
 
 ## 1. Objetivo
 
@@ -638,46 +642,3 @@ Toda publicação poderá ser denunciada. Conteúdos denunciados ficarão dispon
 **Observações de Arquitetura**
 
 Este documento define **o que** o sistema deve fazer, não **como** será implementado. As decisões de arquitetura, banco de dados, APIs, fluxos e componentes serão detalhadas nos próximos documentos.
-
-## 7. Status de Implementação (31/07/2026)
-
-### Requisitos implementados
-
-- **RF-001** — Cadastro de usuários (`POST /auth/register`). ✔
-- **RF-002** — Login por email e senha (`POST /auth/login`). Login via Google/Apple é apenas visual, sem ação. ⚠
-- **RF-003** — Recuperação de senha (`POST /auth/forgot-password`) — valida se o email é cadastrado; o envio real de email ainda não é feito. ✔ (parcial)
-- **RF-004** — Editar perfil (`PATCH /users/me`): nome, cidade, estado, país, telefone e biografia. Foto (avatar) e "Modalidade de pesca" ainda não implementados. ⚠
-- **RF-005** — Privacidade do perfil (Público / Amigos / Privado). ✔
-- **RF-020** — Exibir mapa interativo (mock estilizado). ✔
-- **RF-021** — Mostrar localização atual. ✔
-- **RF-022** — Mostrar locais cadastrados (mock). ✔
-- **RF-023** — Permitir pesquisar locais. ✔
-- **RF-024** — Permitir filtrar por categoria (Praia, Rio, Mangue, Costão, Represa, Mar aberto, Estuário, Canal). ✔
-- **RF-032** — Registrar pescaria (`/pescar`): iniciar, registrar capturas e finalizar (mock). ✔
-- **RF-033** — Captura com espécie, peso, comprimento, foto e observações. ✔
-- **RF-034** — Registro automático de pressão, maré, lua, temperatura e vento (snapshot no início da pescaria, mock). ✔
-- **RF-035** — Editar capturas. ✔
-- **RF-036** — Excluir capturas. ✔
-- **RF-045** — Criar publicações (mock). ✔
-- **RF-046** — Curtir publicações. ✔
-- **RF-047** — Comentar publicações. ✔
-- **RF-048** — Compartilhar publicações. ✔
-- **RF-049** — Seguir usuários. ✔
-- **Diário** (`/diary`) — histórico cronológico de pescarias em cards (local, data/horário, espécies, peso total e snapshot de condições), estatísticas básicas (total de pescarias, capturas, peso total, maior peixe e espécie mais capturada), detalhes da pescaria (resumo, capturas e condições) e edição/exclusão de pescarias. A pescaria finalizada em `/pescar` é salva no `localStorage` (`fishguide:trips`) e passa a aparecer no Diário; na primeira visita, pescarias mock são semeadas como exemplo. ✔
-
-### Funcionalidades adicionadas além desta especificação
-
-- **Alterar senha** (`POST /auth/change-password`) — troca de senha validando a senha atual.
-- **Tema claro/escuro** — alternância global persistida no dispositivo (`localStorage`), aplicada também às telas de autenticação.
-- **Unidades de medida** — peso (kg/lb) e temperatura (°C/°F).
-- **Preferências de notificação** — lembretes de marés e alertas de condições do tempo.
-- **Sair da conta** — logout disponível no perfil.
-- **Sobre o aplicativo** — versão e descrição exibidas no perfil.
-- **"Atualizado há X min"** — indicador de atualização dos dados no cabeçalho da tela HOJE.
-
-### Ainda não implementado
-
-- Módulos: Espécies, Locais, Estatísticas, Equipamentos, Administração e Motor Inteligente. Mapa (`/map`), comunidade (`/community`), registro de pescaria (`/pescar`) e Diário (`/diary`) já possuem telas.
-- Tela HOJE com dados reais (atualmente utiliza dados mock).
-- Tema "automático" (seguir o sistema operacional).
-- Backend: troca de senha por link (`reset-password`), `refresh token` e `logout` no servidor.
