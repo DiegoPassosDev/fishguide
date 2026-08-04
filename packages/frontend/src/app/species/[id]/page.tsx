@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  ArrowLeft,
   Calendar,
   Clock3,
   Fish,
@@ -63,15 +62,6 @@ export default function SpeciesDetailPage() {
       <Header />
 
       <main className="flex-1 overflow-y-auto px-3 pt-2 pb-25">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft size={16} />
-          Voltar
-        </button>
-
         {loading ? (
           <div className="space-y-3">
             <div className="h-28 animate-pulse rounded-3xl bg-card" />
