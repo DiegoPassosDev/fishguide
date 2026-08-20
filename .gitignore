@@ -8,8 +8,9 @@ dist/
 documentos/
 Imagens/
 *.log
-SESSÃO.md
+memoria.md
 nul
 packages/backend;C/
 .DS_Store
 Thumbs.db
+memoria.md
