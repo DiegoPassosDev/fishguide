@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { FgScoreRing } from "@/components/today/FgScoreRing";
@@ -11,6 +12,10 @@ import { WeatherCard } from "@/components/today/WeatherCard";
 import { AstronomyCard } from "@/components/today/AstronomyCard";
 import { RecommendationExplanation } from "@/components/today/RecommendationExplanation";
 import { useAuth } from "@/contexts/useAuth";
+import { getCurrentWeather, type WeatherData } from "@/lib/weather.api";
+
+const DEFAULT_LAT = -22.9068;
+const DEFAULT_LON = -43.1729;
 
 const mock = {
   greeting: "Bom dia",
@@ -46,15 +51,6 @@ const mock = {
     proximaMudanca: "Alta",
     proximaEm: "1h 12min",
   },
-  weather: {
-    temperatura: 27,
-    sensacao: 29,
-    condicao: "Ensolarado",
-    vento: 8,
-    pressao: 1016,
-    umidade: 73,
-    chuva: 12,
-  },
   astronomy: {
     fase: "Crescente",
     iluminacao: 68,
@@ -72,12 +68,51 @@ const mock = {
   ],
 };
 
+const fallbackWeather: WeatherData = {
+  temperatura: 27,
+  sensacao: 29,
+  condicao: "Ensolarado",
+  vento: 8,
+  pressao: 1016,
+  umidade: 73,
+  chuva: 12,
+  location: { lat: DEFAULT_LAT, lon: DEFAULT_LON, name: "Rio de Janeiro", country: "BR" },
+};
+
 export default function TodayDashboard() {
   const { user } = useAuth();
+  const [weather, setWeather] = useState<WeatherData>(fallbackWeather);
+  const [lastUpdated, setLastUpdated] = useState(mock.lastUpdated);
+
+  useEffect(() => {
+    let lat = DEFAULT_LAT;
+    let lon = DEFAULT_LON;
+
+    function onPosition(pos: GeolocationPosition) {
+      lat = pos.coords.latitude;
+      lon = pos.coords.longitude;
+      fetchWeather(lat, lon);
+    }
+
+    function fetchWeather(latitude: number, longitude: number) {
+      getCurrentWeather(latitude, longitude)
+        .then((data) => {
+          setWeather(data);
+          setLastUpdated(new Date().toISOString());
+        })
+        .catch(() => {});
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(onPosition, () => fetchWeather(lat, lon));
+    } else {
+      fetchWeather(lat, lon);
+    }
+  }, []);
 
   return (
     <div className="relative mx-auto flex h-dvh w-full max-w-105 flex-col overflow-hidden bg-background">
-      <Header lastUpdated={mock.lastUpdated} />
+      <Header lastUpdated={lastUpdated} />
 
       <main className="flex-1 overflow-y-auto px-3 pt-2 pb-25">
         <section className="mb-4 flex items-center justify-between px-1">
@@ -106,7 +141,7 @@ export default function TodayDashboard() {
         <TodaySummary data={mock.summary} solunar={mock.solunar} />
         <BestOpportunityCard opportunities={mock.opportunities} />
         <TideCard data={mock.tide} />
-        <WeatherCard data={mock.weather} />
+        <WeatherCard data={weather} />
         <AstronomyCard data={mock.astronomy} />
         <RecommendationExplanation reasons={mock.reasons} confidence="Alta" />
       </main>
