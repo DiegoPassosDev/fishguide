@@ -1,13 +1,11 @@
 "use client";
 
 import { Waves } from "lucide-react";
+import type { TideEvent } from "@/lib/tide.api";
 
 interface TideCardProps {
   data: {
-    alta: string;
-    altaAltura: string;
-    baixa: string;
-    baixaAltura: string;
+    events: TideEvent[];
     amplitude: string;
     agoraStatus: string;
     agoraProgresso: number;
@@ -16,38 +14,120 @@ interface TideCardProps {
   };
 }
 
-function getTidePoint(progress: number) {
-  const full = progress / 100;
-  const isAscending = full <= 0.5;
-  const t = isAscending ? full * 2 : (full - 0.5) * 2;
+interface GraphPoint {
+  x: number;
+  y: number;
+  time: string;
+  height: string;
+  type: "alta" | "baixa";
+}
 
-  const p0 = { x: 35, y: 105 };
-  const c1 = { x: 72, y: 105 };
-  const c2 = { x: 108, y: 30 };
-  const p1 = { x: 145, y: 30 };
-  const c3 = { x: 182, y: 30 };
-  const c4 = { x: 218, y: 105 };
-  const p2 = { x: 255, y: 105 };
+const VB_W = 290;
+const VB_H = 130;
+const HIGH_Y = 30;
+const LOW_Y = 105;
+const X_POSITIONS = [35, 145, 255];
+const HALF_CYCLE_MINUTES = 372;
 
-  function bezier(px0: number, pc1: number, pc2: number, px1: number, t: number) {
-    const u = 1 - t;
-    return px0 * u * u * u + 3 * pc1 * u * u * t + 3 * pc2 * u * t * t + px1 * t * t * t;
-  }
+function toMinutes(time: string) {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+}
 
-  if (isAscending) {
-    return {
-      x: bezier(p0.x, c1.x, c2.x, p1.x, t),
-      y: bezier(p0.y, c1.y, c2.y, p1.y, t),
-    };
-  }
+function shiftTime(time: string, deltaMinutes: number) {
+  const total = (toMinutes(time) + deltaMinutes + 1440) % 1440;
+  const h = String(Math.floor(total / 60)).padStart(2, "0");
+  const m = String(total % 60).padStart(2, "0");
+  return `${h}:${m}`;
+}
+
+function meanHeight(events: TideEvent[], type: "alta" | "baixa") {
+  const values = events.filter((e) => e.type === type).map((e) => Number(e.height));
+  if (values.length === 0) return "1.00";
+  return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2);
+}
+
+function synthOpposite(base: TideEvent, events: TideEvent[], offset: number): TideEvent {
   return {
-    x: bezier(p1.x, c3.x, c4.x, p2.x, t),
-    y: bezier(p1.y, c3.y, c4.y, p2.y, t),
+    time: shiftTime(base.time, offset),
+    height: meanHeight(events, base.type === "alta" ? "baixa" : "alta"),
+    type: base.type === "alta" ? "baixa" : "alta",
+  };
+}
+
+function cubicAt(a: GraphPoint, b: GraphPoint, t: number) {
+  const dx = (b.x - a.x) * 0.4;
+  const c1x = a.x + dx;
+  const c1y = a.y;
+  const c2x = b.x - dx;
+  const c2y = b.y;
+  const u = 1 - t;
+  const bez = (p0: number, p1: number, p2: number, p3: number) =>
+    p0 * u * u * u + 3 * p1 * u * u * t + 3 * p2 * u * t * t + p3 * t * t * t;
+  return {
+    x: bez(a.x, c1x, c2x, b.x),
+    y: bez(a.y, c1y, c2y, b.y),
   };
 }
 
 export function TideCard({ data }: TideCardProps) {
-  const pt = getTidePoint(data.agoraProgresso);
+  const nowInMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+  const events = data.events;
+  const canGraph = events.length >= 2;
+  const nextIdx = canGraph
+    ? events.findIndex((e) => toMinutes(e.time) > nowInMinutes)
+    : -2;
+
+  let prev: TideEvent | undefined;
+  let next: TideEvent | undefined;
+  let after: TideEvent | undefined;
+
+  if (canGraph) {
+    if (nextIdx === -1) {
+      prev = events[events.length - 1];
+      next = synthOpposite(prev, events, HALF_CYCLE_MINUTES);
+      after = synthOpposite(next, events, HALF_CYCLE_MINUTES);
+    } else if (nextIdx === 0) {
+      next = events[0];
+      after = events[1];
+      prev = synthOpposite(next, events, -HALF_CYCLE_MINUTES);
+    } else {
+      prev = events[nextIdx - 1];
+      next = events[nextIdx];
+      after = events[nextIdx + 1] ?? synthOpposite(next, events, HALF_CYCLE_MINUTES);
+    }
+  }
+
+  const showingForecastWindow =
+    canGraph && nextIdx === -1 && !!prev && !!next && !!after;
+  const rowEvents: TideEvent[] = showingForecastWindow
+    ? [prev as TideEvent, next as TideEvent, after as TideEvent]
+    : events;
+
+  let points: GraphPoint[] = [];
+  let curve = "";
+  if (prev && next && after) {
+    const ys = [prev, next, after].map((e) => (e.type === "alta" ? HIGH_Y : LOW_Y));
+    points = [prev, next, after].map((e, i) => ({
+      x: X_POSITIONS[i],
+      y: ys[i],
+      time: e.time,
+      height: Number(e.height).toFixed(2),
+      type: e.type,
+    }));
+    let d = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 1; i < points.length; i++) {
+      const dx = (points[i].x - points[i - 1].x) * 0.4;
+      d += ` C ${points[i - 1].x + dx} ${points[i - 1].y}, ${points[i].x - dx} ${points[i].y}, ${points[i].x} ${points[i].y}`;
+    }
+    curve = d;
+  }
+
+  let now: { x: number; y: number } | null = null;
+  if (points.length === 3) {
+    const t = Math.min(1, Math.max(0, data.agoraProgresso / 100));
+    now = cubicAt(points[0], points[1], t);
+  }
 
   return (
     <section className="mb-3 rounded-3xl border border-border bg-card p-5 shadow-sm">
@@ -59,78 +139,109 @@ export function TideCard({ data }: TideCardProps) {
       </div>
 
       <div className="mb-3 flex items-center justify-between rounded-xl bg-muted/40 px-3 py-2 text-xs">
-        <div className="text-center">
-          <div className="text-muted-foreground">Alta</div>
-          <div className="font-bold text-blue-500">{data.alta}</div>
-          <div className="text-card-foreground">{data.altaAltura}m</div>
-        </div>
-        <div className="h-10 w-px bg-border" />
-        <div className="text-center">
-          <div className="text-muted-foreground">Baixa</div>
-          <div className="font-bold text-blue-500">{data.baixa}</div>
-          <div className="text-card-foreground">{data.baixaAltura}m</div>
-        </div>
+        {rowEvents.map((event, i) => {
+          const isHigh = event.type === "alta";
+          const forecast = showingForecastWindow && i > 0;
+          const isPast = !forecast && toMinutes(event.time) <= nowInMinutes;
+          return (
+            <div key={`${event.time}-${i}`} className={`text-center ${isPast ? "opacity-40" : ""}`}>
+              <div className={isHigh ? "text-blue-500" : "text-muted-foreground"}>
+                {isHigh ? "▲" : "▼"}{" "}
+                <span className="font-bold">
+                  {forecast ? "~" : ""}
+                  {event.time}
+                </span>
+              </div>
+              <div className="text-card-foreground">{event.height}m</div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="relative">
-        <svg viewBox="0 0 290 130" className="w-full">
-          <defs>
-            <linearGradient id="tideGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="50%" stopColor="#06b6d4" />
-              <stop offset="100%" stopColor="#3b82f6" />
-            </linearGradient>
-          </defs>
+        {canGraph && (
+          <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full">
+            <defs>
+              <linearGradient id="tideGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#3b82f6" />
+                <stop offset="50%" stopColor="#06b6d4" />
+                <stop offset="100%" stopColor="#3b82f6" />
+              </linearGradient>
+            </defs>
 
-          <path
-            d="M 35 105 C 72 105 108 30 145 30 C 182 30 218 105 255 105"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            className="opacity-20"
-          />
+            <path
+              d={curve}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="opacity-20"
+            />
 
-          <path
-            d="M 35 105 C 72 105 108 30 145 30 C 182 30 218 105 255 105"
-            fill="none"
-            stroke="url(#tideGrad)"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          />
+            <path
+              d={curve}
+              fill="none"
+              stroke="url(#tideGrad)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
 
-          <circle cx="145" cy="30" r="3" fill="#06b6d4" />
-          <text x="145" y="18" textAnchor="middle" className="fill-blue-500 text-[9px] font-bold">
-            ▲ {data.altaAltura}m
-          </text>
+            {points.map((p, i) => {
+              const isHigh = p.type === "alta";
+              const isPast = i === 0;
+              return (
+                <g key={`${p.time}-${i}`} className={isPast ? "opacity-40" : ""}>
+                  <circle
+                    cx={p.x}
+                    cy={p.y}
+                    r={3}
+                    fill={isHigh ? "#06b6d4" : "#64748b"}
+                  />
+                  <text
+                    x={p.x}
+                    y={isHigh ? p.y - 9 : p.y + 15}
+                    textAnchor="middle"
+                    className={
+                      isHigh
+                        ? "fill-blue-500 text-[9px] font-bold"
+                        : "fill-muted-foreground text-[9px]"
+                    }
+                  >
+                    {isHigh ? "▲" : "▼"} {p.height.replace(".", ",")}m
+                  </text>
+                </g>
+              );
+            })}
 
-          <circle cx="35" cy="105" r="2.5" fill="#64748b" />
-          <text x="35" y="120" textAnchor="middle" className="fill-muted-foreground text-[9px]">
-            ▼ {data.baixaAltura}m
-          </text>
-
-          <circle cx="255" cy="105" r="2.5" fill="#64748b" />
-          <text x="255" y="120" textAnchor="middle" className="fill-muted-foreground text-[9px]">
-            ▼ {data.baixaAltura}m
-          </text>
-
-          <circle cx={pt.x} cy={pt.y} r="4" fill="#3b82f6" stroke="#fff" strokeWidth="1.5" />
-        </svg>
+            {now && (
+              <circle
+                cx={now.x}
+                cy={now.y}
+                r={4}
+                fill="#3b82f6"
+                stroke="#fff"
+                strokeWidth="1.5"
+              />
+            )}
+          </svg>
+        )}
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2">
-        <div className="rounded-xl bg-muted/40 px-3 py-2 text-center">
-          <div className="text-[11px] text-muted-foreground">Amplitude</div>
-          <div className="text-sm font-bold text-card-foreground">{data.amplitude}m</div>
+        <div className="flex aspect-square flex-col items-center rounded-xl bg-muted/40 px-3 py-3">
+          <div className="text-center text-[11px] text-muted-foreground">Amplitude</div>
+          <div className="flex flex-1 items-center text-center text-sm font-bold text-card-foreground">
+            {data.amplitude}m
+          </div>
         </div>
-        <div className="rounded-xl bg-muted/40 px-3 py-2 text-center">
-          <div className="text-[11px] text-muted-foreground">Agora</div>
-          <div className="text-sm font-bold text-blue-500">
+        <div className="flex aspect-square flex-col items-center rounded-xl bg-muted/40 px-3 py-3">
+          <div className="text-center text-[11px] text-muted-foreground">Agora</div>
+          <div className="flex flex-1 items-center text-center text-sm font-bold text-blue-500">
             🌊 {data.agoraStatus} {data.agoraProgresso}%
           </div>
         </div>
-        <div className="rounded-xl bg-muted/40 px-3 py-2 text-center">
-          <div className="text-[11px] text-muted-foreground">Próxima</div>
-          <div className="text-sm font-bold text-card-foreground">
+        <div className="flex aspect-square flex-col items-center rounded-xl bg-muted/40 px-3 py-3">
+          <div className="text-center text-[11px] text-muted-foreground">Próxima</div>
+          <div className="flex flex-1 items-center text-center text-sm font-bold text-card-foreground">
             {data.proximaMudanca} em {data.proximaEm}
           </div>
         </div>

@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module.js';
 import { FishingSpotsModule } from './fishing-spots/fishing-spots.module.js';
 import { SpeciesModule } from './species/species.module.js';
 import { WeatherModule } from './weather/weather.module.js';
+import { TidesModule } from './tides/tides.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -20,6 +21,7 @@ import { AppService } from './app.service.js';
     FishingSpotsModule,
     SpeciesModule,
     WeatherModule,
+    TidesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

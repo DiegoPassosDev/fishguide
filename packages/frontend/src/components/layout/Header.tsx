@@ -6,7 +6,7 @@ import { Bell, Fish } from "lucide-react";
 import { Logo } from "./Logo";
 
 interface HeaderProps {
-  lastUpdated?: string;
+  lastUpdated?: string | null;
 }
 
 export function Header({ lastUpdated }: HeaderProps) {
@@ -51,9 +51,13 @@ export function Header({ lastUpdated }: HeaderProps) {
             </span>
           </button>
         </div>
-        {timeAgo && (
+        {lastUpdated !== undefined && (
           <span className="rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
-            {timeAgo === "agora" ? "Atualizado agora" : `Atualizado há ${timeAgo}`}
+            {lastUpdated === null
+              ? "Atualizando…"
+              : timeAgo === "agora"
+                ? "Atualizado agora"
+                : `Atualizado há ${timeAgo}`}
           </span>
         )}
       </div>
