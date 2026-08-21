@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: fishguide
       POSTGRES_PASSWORD: fishguide_dev
     ports:
-      - "55432:5432"
+      - "54321:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
