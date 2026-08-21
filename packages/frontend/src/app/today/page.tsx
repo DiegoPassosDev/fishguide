@@ -13,13 +13,13 @@ import { AstronomyCard } from "@/components/today/AstronomyCard";
 import { RecommendationExplanation } from "@/components/today/RecommendationExplanation";
 import { useAuth } from "@/contexts/useAuth";
 import { getCurrentWeather, type WeatherData } from "@/lib/weather.api";
+import { getTides, type TideData } from "@/lib/tide.api";
 
 const DEFAULT_LAT = -22.9068;
 const DEFAULT_LON = -43.1729;
 
 const mock = {
   greeting: "Bom dia",
-  lastUpdated: new Date(Date.now() - 8 * 60 * 1000).toISOString(),
   dailyTip: "🌅 Maré enchendo — janela ideal!",
   score: 87,
   confidence: 92,
@@ -40,17 +40,6 @@ const mock = {
     { fish: "Robalo", rating: 5, location: "Praia do Saco", timeStart: "06:00", timeEnd: "08:10", confidence: "Alta" },
     { fish: "Corvina", rating: 4, location: "Praia do Centro", timeStart: "06:30", timeEnd: "09:00", confidence: "Média" },
   ],
-  tide: {
-    alta: "05:42",
-    altaAltura: "2.10",
-    baixa: "11:18",
-    baixaAltura: "0.45",
-    amplitude: "1.65",
-    agoraStatus: "Enchendo",
-    agoraProgresso: 33,
-    proximaMudanca: "Alta",
-    proximaEm: "1h 12min",
-  },
   astronomy: {
     fase: "Crescente",
     iluminacao: 68,
@@ -79,35 +68,71 @@ const fallbackWeather: WeatherData = {
   location: { lat: DEFAULT_LAT, lon: DEFAULT_LON, name: "Rio de Janeiro", country: "BR" },
 };
 
+const fallbackTide: TideData = {
+  events: [
+    { time: "05:42", height: "2.10", type: "alta" },
+    { time: "11:18", height: "0.45", type: "baixa" },
+    { time: "17:30", height: "1.60", type: "alta" },
+    { time: "23:40", height: "0.50", type: "baixa" },
+  ],
+  amplitude: "1.65",
+  agoraStatus: "Enchendo",
+  agoraProgresso: 33,
+  proximaMudanca: "Alta",
+  proximaEm: "1h 12min",
+  harbor: "Porto de Aracaju",
+  state: "se",
+};
+
 export default function TodayDashboard() {
   const { user } = useAuth();
   const [weather, setWeather] = useState<WeatherData>(fallbackWeather);
-  const [lastUpdated, setLastUpdated] = useState(mock.lastUpdated);
+  const [tide, setTide] = useState<TideData>(fallbackTide);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
     let lat = DEFAULT_LAT;
     let lon = DEFAULT_LON;
+    let fetchedOnDate = new Date().toDateString();
+    const REFRESH_INTERVAL_MS = 15 * 60_000;
 
     function onPosition(pos: GeolocationPosition) {
       lat = pos.coords.latitude;
       lon = pos.coords.longitude;
-      fetchWeather(lat, lon);
+      fetchData(lat, lon);
     }
 
-    function fetchWeather(latitude: number, longitude: number) {
-      getCurrentWeather(latitude, longitude)
-        .then((data) => {
-          setWeather(data);
-          setLastUpdated(new Date().toISOString());
-        })
-        .catch(() => {});
+    function fetchData(latitude: number, longitude: number) {
+      Promise.all([
+        getCurrentWeather(latitude, longitude).catch(() => fallbackWeather),
+        getTides(latitude, longitude).catch(() => fallbackTide),
+      ]).then(([weatherData, tideData]) => {
+        setWeather(weatherData);
+        setTide(tideData);
+        setLastUpdated(new Date().toISOString());
+      });
     }
+
+    const dayRollCheck = setInterval(() => {
+      const today = new Date().toDateString();
+      if (today !== fetchedOnDate) {
+        fetchedOnDate = today;
+        fetchData(lat, lon);
+      }
+    }, 60_000);
+
+    const autoRefresh = setInterval(() => fetchData(lat, lon), REFRESH_INTERVAL_MS);
 
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(onPosition, () => fetchWeather(lat, lon));
+      navigator.geolocation.getCurrentPosition(onPosition, () => fetchData(lat, lon));
     } else {
-      fetchWeather(lat, lon);
+      fetchData(lat, lon);
     }
+
+    return () => {
+      clearInterval(dayRollCheck);
+      clearInterval(autoRefresh);
+    };
   }, []);
 
   return (
@@ -140,7 +165,7 @@ export default function TodayDashboard() {
 
         <TodaySummary data={mock.summary} solunar={mock.solunar} />
         <BestOpportunityCard opportunities={mock.opportunities} />
-        <TideCard data={mock.tide} />
+        <TideCard data={tide} />
         <WeatherCard data={weather} />
         <AstronomyCard data={mock.astronomy} />
         <RecommendationExplanation reasons={mock.reasons} confidence="Alta" />
