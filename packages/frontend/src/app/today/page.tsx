@@ -14,6 +14,7 @@ import { RecommendationExplanation } from "@/components/today/RecommendationExpl
 import { useAuth } from "@/contexts/useAuth";
 import { getCurrentWeather, type WeatherData } from "@/lib/weather.api";
 import { getTides, type TideData } from "@/lib/tide.api";
+import { getAstronomy, type AstronomyData } from "@/lib/astronomy.api";
 
 const DEFAULT_LAT = -22.9068;
 const DEFAULT_LON = -43.1729;
@@ -40,16 +41,7 @@ const mock = {
     { fish: "Robalo", rating: 5, location: "Praia do Saco", timeStart: "06:00", timeEnd: "08:10", confidence: "Alta" },
     { fish: "Corvina", rating: 4, location: "Praia do Centro", timeStart: "06:30", timeEnd: "09:00", confidence: "Média" },
   ],
-  astronomy: {
-    fase: "Crescente",
-    iluminacao: 68,
-    solNascer: "05:28",
-    solPor: "17:41",
-    luaNascer: "14:12",
-    luaPor: "01:30",
-  },
-  reasons: [
-    "Maré grande",
+  reasons: [    "Maré grande",
     "Pressão estável",
     "Histórico positivo",
     "Lua Crescente",
@@ -61,8 +53,10 @@ export default function TodayDashboard() {
   const { user } = useAuth();
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [tide, setTide] = useState<TideData | null>(null);
+  const [astronomy, setAstronomy] = useState<AstronomyData | null>(null);
   const [weatherError, setWeatherError] = useState(false);
   const [tideError, setTideError] = useState(false);
+  const [astronomyError, setAstronomyError] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(true);
   const [coords, setCoords] = useState({ lat: DEFAULT_LAT, lon: DEFAULT_LON });
@@ -91,28 +85,45 @@ export default function TodayDashboard() {
     }
   }, []);
 
+  const loadAstronomy = useCallback(async (latitude: number, longitude: number): Promise<boolean> => {
+    try {
+      const data = await getAstronomy(latitude, longitude);
+      setAstronomy(data);
+      setAstronomyError(false);
+      return true;
+    } catch {
+      setAstronomyError(true);
+      return false;
+    }
+  }, []);
+
   const fetchData = useCallback(
     async (latitude: number, longitude: number) => {
       setRefreshing(true);
-      const [weatherOk, tideOk] = await Promise.all([
+      const [weatherOk, tideOk, astronomyOk] = await Promise.all([
         loadWeather(latitude, longitude),
         loadTide(latitude, longitude),
+        loadAstronomy(latitude, longitude),
       ]);
-      if (weatherOk || tideOk) {
+      if (weatherOk || tideOk || astronomyOk) {
         setLastUpdated(new Date().toISOString());
       }
       setRefreshing(false);
     },
-    [loadWeather, loadTide],
+    [loadWeather, loadTide, loadAstronomy],
   );
 
-  async function retry(kind: "weather" | "tide") {
+  async function retry(kind: "weather" | "tide" | "astronomy") {
     if (refreshing) return;
     setRefreshing(true);
-    const ok =
-      kind === "weather"
-        ? await loadWeather(coords.lat, coords.lon)
-        : await loadTide(coords.lat, coords.lon);
+    let ok = false;
+    if (kind === "weather") {
+      ok = await loadWeather(coords.lat, coords.lon);
+    } else if (kind === "tide") {
+      ok = await loadTide(coords.lat, coords.lon);
+    } else {
+      ok = await loadAstronomy(coords.lat, coords.lon);
+    }
     if (ok) {
       setLastUpdated(new Date().toISOString());
     }
@@ -196,7 +207,7 @@ export default function TodayDashboard() {
         <BestOpportunityCard opportunities={mock.opportunities} />
         <TideCard data={tide} error={tideError} onRetry={() => void retry("tide")} />
         <WeatherCard data={weather} error={weatherError} onRetry={() => void retry("weather")} />
-        <AstronomyCard data={mock.astronomy} />
+        <AstronomyCard data={astronomy} error={astronomyError} onRetry={() => void retry("astronomy")} />
         <RecommendationExplanation reasons={mock.reasons} confidence="Alta" />
       </main>
 

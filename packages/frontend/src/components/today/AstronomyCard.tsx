@@ -1,20 +1,36 @@
 "use client";
 
 import { Sunrise, Moon, MoonStar } from "lucide-react";
+import type { AstronomyData } from "@/lib/astronomy.api";
 import { MoonPhaseIcon } from "./MoonPhaseIcon";
+import { CardError } from "./CardError";
 
-interface AstronomyCardProps {
-  data: {
-    fase: string;
-    iluminacao: number;
-    solNascer: string;
-    solPor: string;
-    luaNascer: string;
-    luaPor: string;
-  };
+function AstronomySkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="mb-5 flex items-center gap-4">
+        <div className="size-14 shrink-0 rounded-full bg-muted" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 w-28 rounded bg-muted" />
+          <div className="h-3 w-24 rounded bg-muted" />
+        </div>
+      </div>
+      <div className="space-y-3">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div key={i} className="h-[52px] rounded-xl bg-muted/40" />
+        ))}
+      </div>
+    </div>
+  );
 }
 
-export function AstronomyCard({ data }: AstronomyCardProps) {
+interface AstronomyCardProps {
+  data: AstronomyData | null;
+  error?: boolean;
+  onRetry?: () => void;
+}
+
+export function AstronomyCard({ data, error, onRetry }: AstronomyCardProps) {
   return (
     <section className="mb-3 rounded-3xl border border-border bg-card p-5 shadow-sm">
       <div className="mb-4 flex items-center gap-2">
@@ -24,6 +40,20 @@ export function AstronomyCard({ data }: AstronomyCardProps) {
         </h2>
       </div>
 
+      {error && !data ? (
+        <CardError onRetry={onRetry} />
+      ) : !data ? (
+        <AstronomySkeleton />
+      ) : (
+        <AstronomyContent data={data} />
+      )}
+    </section>
+  );
+}
+
+function AstronomyContent({ data }: { data: AstronomyData }) {
+  return (
+    <>
       <div className="mb-5 flex items-center gap-4">
         <div className="relative flex size-14 shrink-0 items-center justify-center">
           <MoonPhaseIcon phase={data.fase} className="size-14" />
@@ -73,6 +103,6 @@ export function AstronomyCard({ data }: AstronomyCardProps) {
           </div>
         </div>
       </div>
-    </section>
+    </>
   );
 }
