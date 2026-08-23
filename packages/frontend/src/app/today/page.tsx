@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { FgScoreRing } from "@/components/today/FgScoreRing";
@@ -57,38 +57,67 @@ const mock = {
   ],
 };
 
-const fallbackWeather: WeatherData = {
-  temperatura: 27,
-  sensacao: 29,
-  condicao: "Ensolarado",
-  vento: 8,
-  pressao: 1016,
-  umidade: 73,
-  chuva: 12,
-  location: { lat: DEFAULT_LAT, lon: DEFAULT_LON, name: "Rio de Janeiro", country: "BR" },
-};
-
-const fallbackTide: TideData = {
-  events: [
-    { time: "05:42", height: "2.10", type: "alta" },
-    { time: "11:18", height: "0.45", type: "baixa" },
-    { time: "17:30", height: "1.60", type: "alta" },
-    { time: "23:40", height: "0.50", type: "baixa" },
-  ],
-  amplitude: "1.65",
-  agoraStatus: "Enchendo",
-  agoraProgresso: 33,
-  proximaMudanca: "Alta",
-  proximaEm: "1h 12min",
-  harbor: "Porto de Aracaju",
-  state: "se",
-};
-
 export default function TodayDashboard() {
   const { user } = useAuth();
-  const [weather, setWeather] = useState<WeatherData>(fallbackWeather);
-  const [tide, setTide] = useState<TideData>(fallbackTide);
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [tide, setTide] = useState<TideData | null>(null);
+  const [weatherError, setWeatherError] = useState(false);
+  const [tideError, setTideError] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(true);
+  const [coords, setCoords] = useState({ lat: DEFAULT_LAT, lon: DEFAULT_LON });
+
+  const loadWeather = useCallback(async (latitude: number, longitude: number): Promise<boolean> => {
+    try {
+      const data = await getCurrentWeather(latitude, longitude);
+      setWeather(data);
+      setWeatherError(false);
+      return true;
+    } catch {
+      setWeatherError(true);
+      return false;
+    }
+  }, []);
+
+  const loadTide = useCallback(async (latitude: number, longitude: number): Promise<boolean> => {
+    try {
+      const data = await getTides(latitude, longitude);
+      setTide(data);
+      setTideError(false);
+      return true;
+    } catch {
+      setTideError(true);
+      return false;
+    }
+  }, []);
+
+  const fetchData = useCallback(
+    async (latitude: number, longitude: number) => {
+      setRefreshing(true);
+      const [weatherOk, tideOk] = await Promise.all([
+        loadWeather(latitude, longitude),
+        loadTide(latitude, longitude),
+      ]);
+      if (weatherOk || tideOk) {
+        setLastUpdated(new Date().toISOString());
+      }
+      setRefreshing(false);
+    },
+    [loadWeather, loadTide],
+  );
+
+  async function retry(kind: "weather" | "tide") {
+    if (refreshing) return;
+    setRefreshing(true);
+    const ok =
+      kind === "weather"
+        ? await loadWeather(coords.lat, coords.lon)
+        : await loadTide(coords.lat, coords.lon);
+    if (ok) {
+      setLastUpdated(new Date().toISOString());
+    }
+    setRefreshing(false);
+  }
 
   useEffect(() => {
     let lat = DEFAULT_LAT;
@@ -99,45 +128,45 @@ export default function TodayDashboard() {
     function onPosition(pos: GeolocationPosition) {
       lat = pos.coords.latitude;
       lon = pos.coords.longitude;
-      fetchData(lat, lon);
-    }
-
-    function fetchData(latitude: number, longitude: number) {
-      Promise.all([
-        getCurrentWeather(latitude, longitude).catch(() => fallbackWeather),
-        getTides(latitude, longitude).catch(() => fallbackTide),
-      ]).then(([weatherData, tideData]) => {
-        setWeather(weatherData);
-        setTide(tideData);
-        setLastUpdated(new Date().toISOString());
-      });
+      setCoords({ lat, lon });
+      void fetchData(lat, lon);
     }
 
     const dayRollCheck = setInterval(() => {
       const today = new Date().toDateString();
       if (today !== fetchedOnDate) {
         fetchedOnDate = today;
-        fetchData(lat, lon);
+        void fetchData(lat, lon);
       }
     }, 60_000);
 
-    const autoRefresh = setInterval(() => fetchData(lat, lon), REFRESH_INTERVAL_MS);
+    const autoRefresh = setInterval(() => void fetchData(lat, lon), REFRESH_INTERVAL_MS);
 
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        void fetchData(lat, lon);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    let fallbackTimer: ReturnType<typeof setTimeout> | undefined;
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(onPosition, () => fetchData(lat, lon));
+      navigator.geolocation.getCurrentPosition(onPosition, () => void fetchData(lat, lon));
     } else {
-      fetchData(lat, lon);
+      fallbackTimer = setTimeout(() => void fetchData(lat, lon), 0);
     }
 
     return () => {
       clearInterval(dayRollCheck);
       clearInterval(autoRefresh);
+      document.removeEventListener("visibilitychange", onVisibility);
+      if (fallbackTimer) clearTimeout(fallbackTimer);
     };
-  }, []);
+  }, [fetchData]);
 
   return (
     <div className="relative mx-auto flex h-dvh w-full max-w-105 flex-col overflow-hidden bg-background">
-      <Header lastUpdated={lastUpdated} />
+      <Header lastUpdated={lastUpdated} refreshing={refreshing} />
 
       <main className="flex-1 overflow-y-auto px-3 pt-2 pb-25">
         <section className="mb-4 flex items-center justify-between px-1">
@@ -165,8 +194,8 @@ export default function TodayDashboard() {
 
         <TodaySummary data={mock.summary} solunar={mock.solunar} />
         <BestOpportunityCard opportunities={mock.opportunities} />
-        <TideCard data={tide} />
-        <WeatherCard data={weather} />
+        <TideCard data={tide} error={tideError} onRetry={() => void retry("tide")} />
+        <WeatherCard data={weather} error={weatherError} onRetry={() => void retry("weather")} />
         <AstronomyCard data={mock.astronomy} />
         <RecommendationExplanation reasons={mock.reasons} confidence="Alta" />
       </main>

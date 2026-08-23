@@ -1,18 +1,8 @@
 "use client";
 
 import { Waves } from "lucide-react";
-import type { TideEvent } from "@/lib/tide.api";
-
-interface TideCardProps {
-  data: {
-    events: TideEvent[];
-    amplitude: string;
-    agoraStatus: string;
-    agoraProgresso: number;
-    proximaMudanca: string;
-    proximaEm: string;
-  };
-}
+import type { TideData, TideEvent } from "@/lib/tide.api";
+import { CardError } from "./CardError";
 
 interface GraphPoint {
   x: number;
@@ -70,7 +60,48 @@ function cubicAt(a: GraphPoint, b: GraphPoint, t: number) {
   };
 }
 
-export function TideCard({ data }: TideCardProps) {
+function TideSkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="mb-3 h-9 rounded-xl bg-muted/40" />
+      <div className="mb-2 h-[130px] rounded-xl bg-muted/40" />
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="aspect-square rounded-xl bg-muted/40" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+interface TideCardProps {
+  data: TideData | null;
+  error?: boolean;
+  onRetry?: () => void;
+}
+
+export function TideCard({ data, error, onRetry }: TideCardProps) {
+  return (
+    <section className="mb-3 rounded-3xl border border-border bg-card p-5 shadow-sm">
+      <div className="mb-4 flex items-center gap-2">
+        <Waves size={16} className="text-blue-500" />
+        <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+          Maré
+        </h2>
+      </div>
+
+      {error && !data ? (
+        <CardError onRetry={onRetry} />
+      ) : !data ? (
+        <TideSkeleton />
+      ) : (
+        <TideContent data={data} />
+      )}
+    </section>
+  );
+}
+
+function TideContent({ data }: { data: TideData }) {
   const nowInMinutes = new Date().getHours() * 60 + new Date().getMinutes();
   const events = data.events;
   const canGraph = events.length >= 2;
@@ -130,14 +161,7 @@ export function TideCard({ data }: TideCardProps) {
   }
 
   return (
-    <section className="mb-3 rounded-3xl border border-border bg-card p-5 shadow-sm">
-      <div className="mb-4 flex items-center gap-2">
-        <Waves size={16} className="text-blue-500" />
-        <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-          Maré
-        </h2>
-      </div>
-
+    <>
       <div className="mb-3 flex items-center justify-between rounded-xl bg-muted/40 px-3 py-2 text-xs">
         {rowEvents.map((event, i) => {
           const isHigh = event.type === "alta";
@@ -246,6 +270,6 @@ export function TideCard({ data }: TideCardProps) {
           </div>
         </div>
       </div>
-    </section>
+    </>
   );
 }

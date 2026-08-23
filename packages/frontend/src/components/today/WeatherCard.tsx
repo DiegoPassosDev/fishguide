@@ -1,43 +1,49 @@
 "use client";
 
-import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, CloudDrizzle, CloudFog, Wind, Gauge, Droplets } from "lucide-react";
+import { Sun, CloudSun, Cloud, CloudRain, CloudLightning, CloudDrizzle, CloudFog, Wind, Gauge, Droplets, Snowflake } from "lucide-react";
 
 import type { ComponentType } from "react";
+import type { WeatherData } from "@/lib/weather.api";
+import { CardError } from "./CardError";
 
-const CONDITION_ICON: Record<string, { icon: ComponentType<{ size?: number; className?: string }>; color: string }> = {
-  "Ensolarado": { icon: Sun, color: "text-amber-400" },
-  "Céu Limpo": { icon: Sun, color: "text-amber-400" },
-  "Parcialmente Nublado": { icon: CloudSun, color: "text-sky-400" },
-  "Nublado": { icon: Cloud, color: "text-gray-400" },
-  "Chuvoso": { icon: CloudRain, color: "text-blue-400" },
-  "Tempestade": { icon: CloudLightning, color: "text-violet-400" },
-  "Chuva Fraca": { icon: CloudDrizzle, color: "text-blue-300" },
-  "Neblina": { icon: CloudFog, color: "text-gray-300" },
+const WEATHER_ICON: Record<string, { icon: ComponentType<{ size?: number; className?: string }>; color: string }> = {
+  "01": { icon: Sun, color: "text-amber-400" },
+  "02": { icon: CloudSun, color: "text-sky-400" },
+  "03": { icon: Cloud, color: "text-gray-400" },
+  "04": { icon: Cloud, color: "text-gray-400" },
+  "09": { icon: CloudDrizzle, color: "text-blue-300" },
+  "10": { icon: CloudRain, color: "text-blue-400" },
+  "11": { icon: CloudLightning, color: "text-violet-400" },
+  "13": { icon: Snowflake, color: "text-cyan-300" },
+  "50": { icon: CloudFog, color: "text-gray-300" },
 };
 
-interface WeatherCardProps {
-  data: {
-    temperatura: number;
-    sensacao: number;
-    condicao: string;
-    vento: number;
-    pressao: number;
-    umidade: number;
-    chuva: number;
-  };
+function WeatherSkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="mb-4 flex items-center gap-5">
+        <div className="size-12 shrink-0 rounded-full bg-muted" />
+        <div className="flex-1 space-y-2">
+          <div className="h-7 w-24 rounded bg-muted" />
+          <div className="h-3 w-20 rounded bg-muted" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-11 rounded-xl bg-muted/60" />
+        ))}
+      </div>
+    </div>
+  );
 }
 
-export function WeatherCard({ data }: WeatherCardProps) {
-  const iconConfig = CONDITION_ICON[data.condicao] ?? CONDITION_ICON["Ensolarado"];
-  const WeatherIcon = iconConfig.icon;
+interface WeatherCardProps {
+  data: WeatherData | null;
+  error?: boolean;
+  onRetry?: () => void;
+}
 
-  const items = [
-    { icon: <Wind size={14} className="text-sky-400" />, label: "Vento", value: `${data.vento} km/h` },
-    { icon: <Gauge size={14} className="text-violet-400" />, label: "Pressão", value: `${data.pressao} hPa` },
-    { icon: <Droplets size={14} className="text-blue-400" />, label: "Umidade", value: `${data.umidade}%` },
-    { icon: <CloudRain size={14} className="text-cyan-400" />, label: "Chuva", value: `${data.chuva}%` },
-  ];
-
+export function WeatherCard({ data, error, onRetry }: WeatherCardProps) {
   return (
     <section className="mb-3 rounded-3xl border border-border bg-card p-5 shadow-sm">
       <div className="mb-4 flex items-center gap-2">
@@ -47,6 +53,30 @@ export function WeatherCard({ data }: WeatherCardProps) {
         </h2>
       </div>
 
+      {error && !data ? (
+        <CardError onRetry={onRetry} />
+      ) : !data ? (
+        <WeatherSkeleton />
+      ) : (
+        <WeatherContent data={data} />
+      )}
+    </section>
+  );
+}
+
+function WeatherContent({ data }: { data: WeatherData }) {
+  const iconConfig = WEATHER_ICON[data.conditionIcon?.slice(0, 2)] ?? WEATHER_ICON["02"];
+  const WeatherIcon = iconConfig.icon;
+
+  const items = [
+    { icon: <Wind size={14} className="text-sky-400" />, label: "Vento", value: `${data.vento} km/h` },
+    { icon: <Gauge size={14} className="text-violet-400" />, label: "Pressão", value: `${data.pressao} hPa` },
+    { icon: <Droplets size={14} className="text-blue-400" />, label: "Umidade", value: `${data.umidade}%` },
+    { icon: <CloudRain size={14} className="text-cyan-400" />, label: "Chuva (1h)", value: `${data.chuva.toFixed(2).replace(".", ",")} mm` },
+  ];
+
+  return (
+    <>
       <div className="mb-4 flex items-center gap-5">
         <WeatherIcon size={48} className={`${iconConfig.color} shrink-0`} />
         <div>
@@ -69,6 +99,6 @@ export function WeatherCard({ data }: WeatherCardProps) {
           </div>
         ))}
       </div>
-    </section>
+    </>
   );
 }
