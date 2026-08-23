@@ -8,6 +8,7 @@ export interface WeatherData {
   pressao: number;
   umidade: number;
   chuva: number;
+  conditionIcon: string;
   location: {
     lat: number;
     lon: number;
@@ -46,6 +47,7 @@ function mapResponse(data: WeatherApiResponse): WeatherData {
     pressao: data.pressure,
     umidade: data.humidity,
     chuva: data.rain ?? 0,
+    conditionIcon: data.conditionIcon,
     location: data.location,
   };
 }
