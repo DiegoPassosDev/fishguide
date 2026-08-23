@@ -86,8 +86,7 @@ export class TidesService {
       const harborResponse = await firstValueFrom(this.http.get<NearestHarborResponse>(harborUrl));
       
       if (harborResponse.data.total === 0) {
-        this.logger.warn('No harbor found, returning mock data');
-        return this.getMockTides();
+        throw new Error(`No harbor found for coordinates [${lat}, ${lon}]`);
       }
 
       const harbor = harborResponse.data.data[0];
@@ -96,22 +95,21 @@ export class TidesService {
       const tideResponse = await firstValueFrom(this.http.get<TabuaMareResponse>(tideUrl));
 
       if (tideResponse.data.total === 0) {
-        this.logger.warn('No tide data found, returning mock data');
-        return this.getMockTides();
+        throw new Error(`No tide data found for harbor ${harbor.id}`);
       }
 
       const tideData = tideResponse.data.data[0];
       const todayData = tideData.months[0]?.days[0];
-      
+
       if (!todayData || todayData.hours.length === 0) {
-        return this.getMockTides();
+        throw new Error(`No tide hours available for harbor ${harbor.id}`);
       }
 
       return this.calculateTideData(todayData.hours, harbor.harbor_name, harbor.state);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to fetch tide data: ${message}`);
-      return this.getMockTides();
+      throw error;
     }
   }
 
@@ -216,26 +214,5 @@ export class TidesService {
     if (lat > -1 && lon > -50) return 'pa';
     if (lat > -3 && lon > -42) return 'pi';
     return 'se';
-  }
-
-  private getMockTides(): TideData {
-    const now = new Date();
-    const hour = now.getHours();
-    
-    return {
-      events: [
-        { time: '05:42', height: 2.1, type: 'alta' },
-        { time: '11:18', height: 0.45, type: 'baixa' },
-        { time: '17:30', height: 1.6, type: 'alta' },
-        { time: '23:40', height: 0.5, type: 'baixa' },
-      ],
-      amplitude: 1.65,
-      agoraStatus: hour < 8 ? 'Enchendo' : hour < 14 ? 'Vazando' : 'Enchendo',
-      agoraProgresso: 33,
-      proximaMudanca: 'Alta',
-      proximaEm: '1h 12min',
-      harbor: 'Porto de Aracaju',
-      state: 'se',
-    };
   }
 }

@@ -56,4 +56,4 @@ export interface CreateSpeciesDto {
   bestBait?: string;
 }
 
-export interface UpdateSpeciesDto extends Partial<CreateSpeciesDto> {}
+export type UpdateSpeciesDto = Partial<CreateSpeciesDto>;

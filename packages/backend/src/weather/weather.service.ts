@@ -73,10 +73,8 @@ export class WeatherService {
 
   async getCurrentWeather(lat: number, lon: number): Promise<WeatherData> {
     if (!this.apiKey) {
-      this.logger.warn(
-        'OPENWEATHER_API_KEY not configured, returning mock data',
-      );
-      return this.getMockWeather(lat, lon);
+      this.logger.error('OPENWEATHER_API_KEY not configured');
+      throw new Error('OPENWEATHER_API_KEY not configured');
     }
 
     try {
@@ -110,33 +108,7 @@ export class WeatherService {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to fetch weather data: ${message}`);
-      return this.getMockWeather(lat, lon);
+      throw error;
     }
-  }
-
-  private getMockWeather(lat: number, lon: number): WeatherData {
-    const hour = new Date().getHours();
-    const temp = 22 + 3.5 * Math.sin(((hour - 6) * Math.PI) / 12);
-
-    return {
-      temperature: Math.round(temp),
-      feelsLike: Math.round(temp + 2),
-      humidity: 73,
-      pressure: 1016,
-      windSpeed: 8,
-      windDirection: 180,
-      clouds: 20,
-      visibility: 10000,
-      rain: 0,
-      condition: 'Ensolarado',
-      conditionIcon: '01d',
-      location: {
-        lat,
-        lon,
-        name: 'Localização',
-        country: 'BR',
-      },
-      timestamp: Date.now(),
-    };
   }
 }

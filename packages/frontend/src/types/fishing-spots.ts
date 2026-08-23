@@ -85,4 +85,4 @@ export interface CreateFishingSpotDto {
   privacy?: SpotVisibility;
 }
 
-export interface UpdateFishingSpotDto extends Partial<CreateFishingSpotDto> {}
+export type UpdateFishingSpotDto = Partial<CreateFishingSpotDto>;

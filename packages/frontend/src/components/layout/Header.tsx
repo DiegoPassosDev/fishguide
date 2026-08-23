@@ -7,9 +7,10 @@ import { Logo } from "./Logo";
 
 interface HeaderProps {
   lastUpdated?: string | null;
+  refreshing?: boolean;
 }
 
-export function Header({ lastUpdated }: HeaderProps) {
+export function Header({ lastUpdated, refreshing }: HeaderProps) {
   const router = useRouter();
   const [timeAgo, setTimeAgo] = useState("");
 
@@ -53,7 +54,7 @@ export function Header({ lastUpdated }: HeaderProps) {
         </div>
         {lastUpdated !== undefined && (
           <span className="rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
-            {lastUpdated === null
+            {refreshing || lastUpdated === null
               ? "Atualizando…"
               : timeAgo === "agora"
                 ? "Atualizado agora"
