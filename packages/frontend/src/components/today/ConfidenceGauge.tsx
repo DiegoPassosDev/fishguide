@@ -1,32 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ConfidenceGaugeProps {
   value: number;
 }
 
+function easeOutExpo(t: number): number {
+  return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+}
+
 export function ConfidenceGauge({ value }: ConfidenceGaugeProps) {
-  const [displayValue, setDisplayValue] = useState(0);
+  const [displayPercent, setDisplayPercent] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const animRef = useRef<number | undefined>(undefined);
+  const prevValueRef = useRef(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDisplayValue(value);
-      setMounted(true);
-    }, 100);
-    return () => clearTimeout(timer);
+    const fromVal = prevValueRef.current;
+    const toVal = value;
+    prevValueRef.current = value;
+
+    if (fromVal === toVal) return;
+
+    const duration = 1200;
+    let startTime: number | null = null;
+
+    setMounted(true);
+
+    function animate(timestamp: number) {
+      if (startTime === null) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeOutExpo(progress);
+      const current = fromVal + (toVal - fromVal) * eased;
+
+      setDisplayPercent(Math.round(current));
+
+      if (progress < 1) {
+        animRef.current = requestAnimationFrame(animate);
+      }
+    }
+
+    animRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
   }, [value]);
 
   const dashArray = 104.1;
-  const dashOffset = dashArray - (displayValue / 100) * dashArray;
-  const needleAngle = (displayValue / 100) * 180;
+  const needleAngle = (value / 100) * 180;
 
   return (
     <div className="flex items-center justify-center gap-4">
       <div className="text-center">
         <div className="text-xs font-medium text-muted-foreground">Confiança</div>
-        <div className="text-base font-bold text-foreground">{value}%</div>
+        <div className="text-base font-bold text-foreground">{displayPercent}%</div>
       </div>
 
       <svg width="100" height="60" viewBox="0 0 100 60">
@@ -51,7 +81,7 @@ export function ConfidenceGauge({ value }: ConfidenceGaugeProps) {
           fill="none"
           strokeLinecap="round"
           strokeDasharray={`${dashArray} 999`}
-          strokeDashoffset={mounted ? dashOffset : dashArray}
+          strokeDashoffset={mounted ? dashArray - (value / 100) * dashArray : dashArray}
           style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(0.33, 1, 0.68, 1)" }}
         />
         <g
