@@ -10,53 +10,44 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateUser: (data: UpdateProfileDto) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-function getInitialToken(): string | null {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("token");
-  }
-  return null;
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(getInitialToken);
+  const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(() => !!getInitialToken());
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      authApi
-        .getProfile()
-        .then((profile) => setUser(profile))
-        .catch(() => {
-          localStorage.removeItem("token");
-          setToken(null);
-        })
-        .finally(() => setIsLoading(false));
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    authApi
+      .getProfile()
+      .then((profile) => {
+        setUser(profile);
+        setToken("cookie");
+      })
+      .catch(() => {
+        setToken(null);
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
 
   const login = useCallback(async (email: string, password: string) => {
     const response = await authApi.login({ email, password });
-    localStorage.setItem("token", response.accessToken);
-    setToken(response.accessToken);
+    setToken("cookie");
     setUser(response.user);
   }, []);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
     const response = await authApi.register({ name, email, password });
-    localStorage.setItem("token", response.accessToken);
-    setToken(response.accessToken);
+    setToken("cookie");
     setUser(response.user);
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem("token");
+  const logout = useCallback(async () => {
+    await authApi.logout();
     setToken(null);
     setUser(null);
   }, []);
