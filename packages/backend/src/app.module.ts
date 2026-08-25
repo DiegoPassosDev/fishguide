@@ -9,6 +9,7 @@ import { SpeciesModule } from './species/species.module.js';
 import { WeatherModule } from './weather/weather.module.js';
 import { TidesModule } from './tides/tides.module.js';
 import { AstronomyModule } from './astronomy/astronomy.module.js';
+import { FgScoreModule } from './fg-score/fg-score.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -24,6 +25,7 @@ import { AppService } from './app.service.js';
     WeatherModule,
     TidesModule,
     AstronomyModule,
+    FgScoreModule,
   ],
   controllers: [AppController],
   providers: [AppService],
