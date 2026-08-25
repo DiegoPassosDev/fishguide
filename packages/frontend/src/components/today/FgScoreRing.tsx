@@ -1,15 +1,56 @@
 "use client";
 
+import { useEffect, useState, useRef } from "react";
+
 interface FgScoreRingProps {
   score: number;
   label: string;
   subtitle: string;
 }
 
+function easeOutExpo(t: number): number {
+  return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+}
+
 export function FgScoreRing({ score, label, subtitle }: FgScoreRingProps) {
+  const [displayScore, setDisplayScore] = useState(0);
   const r = 92;
   const circ = 2 * Math.PI * r;
-  const offset = circ - (score / 100) * circ;
+  const [displayOffset, setDisplayOffset] = useState(circ);
+  const animRef = useRef<number | undefined>(undefined);
+  const prevScoreRef = useRef(0);
+
+  useEffect(() => {
+    const fromScore = prevScoreRef.current;
+    const toScore = score;
+    prevScoreRef.current = score;
+
+    if (fromScore === toScore) return;
+
+    const duration = 1200;
+    let startTime: number | null = null;
+
+    function animate(timestamp: number) {
+      if (startTime === null) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeOutExpo(progress);
+      const current = fromScore + (toScore - fromScore) * eased;
+
+      setDisplayScore(Math.round(current));
+      setDisplayOffset(circ - (current / 100) * circ);
+
+      if (progress < 1) {
+        animRef.current = requestAnimationFrame(animate);
+      }
+    }
+
+    animRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
+  }, [score, circ]);
 
   return (
     <div className="flex flex-col items-center">
@@ -39,7 +80,7 @@ export function FgScoreRing({ score, label, subtitle }: FgScoreRingProps) {
             fill="none"
             strokeLinecap="round"
             strokeDasharray={circ}
-            strokeDashoffset={offset}
+            strokeDashoffset={displayOffset}
             className="drop-shadow-[0_0_8px_rgba(34,211,184,0.3)]"
           />
         </svg>
@@ -49,7 +90,7 @@ export function FgScoreRing({ score, label, subtitle }: FgScoreRingProps) {
             {label}
           </span>
           <span className="font-heading text-[52px] font-extrabold leading-none text-foreground -mt-0.5">
-            {score}
+            {displayScore}
           </span>
           <div className="h-2" />
           <span className="max-w-27.5 text-sm font-bold leading-tight text-foreground whitespace-pre-line">

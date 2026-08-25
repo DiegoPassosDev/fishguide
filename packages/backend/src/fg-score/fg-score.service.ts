@@ -173,7 +173,7 @@ export class FgScoreService {
   private computeWeightedScore(factors: ScoreFactor[]): number {
     const totalWeight = factors.reduce((sum, f) => sum + f.weight, 0);
     const totalContribution = factors.reduce((sum, f) => sum + f.contribution, 0);
-    return Math.round((totalContribution / totalWeight) * 100);
+    return Math.round(totalContribution / totalWeight);
   }
 
   private computeConfidence(

@@ -1,12 +1,26 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 interface ConfidenceGaugeProps {
   value: number;
 }
 
 export function ConfidenceGauge({ value }: ConfidenceGaugeProps) {
+  const [displayValue, setDisplayValue] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDisplayValue(value);
+      setMounted(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [value]);
+
   const dashArray = 104.1;
-  const dashOffset = dashArray - (value / 100) * dashArray;
+  const dashOffset = dashArray - (displayValue / 100) * dashArray;
+  const needleAngle = (displayValue / 100) * 180;
 
   return (
     <div className="flex items-center justify-center gap-4">
@@ -37,9 +51,16 @@ export function ConfidenceGauge({ value }: ConfidenceGaugeProps) {
           fill="none"
           strokeLinecap="round"
           strokeDasharray={`${dashArray} 999`}
-          strokeDashoffset={dashOffset}
+          strokeDashoffset={mounted ? dashOffset : dashArray}
+          style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(0.33, 1, 0.68, 1)" }}
         />
-        <g transform={`rotate(${(value / 100) * 180}, 50, 50)`}>
+        <g
+          style={{
+            transform: `rotate(${mounted ? needleAngle : 0}deg)`,
+            transformOrigin: "50px 50px",
+            transition: "transform 1.2s cubic-bezier(0.33, 1, 0.68, 1)",
+          }}
+        >
           <polygon points="16,50 48,44 48,56" fill="#71757e" />
           <polygon points="19,50 47,46 47,54" fill="#a0a5b0" />
         </g>
