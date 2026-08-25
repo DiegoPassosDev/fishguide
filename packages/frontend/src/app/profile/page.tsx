@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
@@ -42,14 +41,7 @@ const mock = {
 
 export default function ProfilePage() {
   const { user, isLoading } = useAuth();
-  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
-
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.replace("/login");
-    }
-  }, [isLoading, user, router]);
 
   if (isLoading || !user) {
     return (

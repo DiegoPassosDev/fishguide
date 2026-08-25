@@ -11,6 +11,10 @@ export async function register(data: RegisterDto): Promise<AuthResponse> {
   return response.data;
 }
 
+export async function logout(): Promise<void> {
+  await api.post("/auth/logout");
+}
+
 export async function forgotPassword(data: ForgotPasswordDto): Promise<void> {
   await api.post("/auth/forgot-password", data);
 }

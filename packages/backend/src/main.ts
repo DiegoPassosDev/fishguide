@@ -17,10 +17,13 @@ async function bootstrap() {
     import('./app.module.js'),
   ]);
 
+  const { default: cookieParser } = await import('cookie-parser');
+
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api/v1');
-  app.enableCors();
+  app.enableCors({ origin: true, credentials: true });
+  app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   const swaggerConfig = new DocumentBuilder()
