@@ -18,9 +18,11 @@ async function bootstrap() {
   ]);
 
   const { default: cookieParser } = await import('cookie-parser');
+  const { default: express } = await import('express');
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
 
+  app.use(express.json({ limit: '10mb' }));
   app.setGlobalPrefix('api/v1');
   app.enableCors({ origin: true, credentials: true });
   app.use(cookieParser());
@@ -38,5 +40,4 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
-
 bootstrap();

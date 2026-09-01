@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
@@ -40,44 +41,36 @@ const mock = {
 };
 
 export default function ProfilePage() {
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
 
-  if (isLoading || !user) {
-    return (
-      <div className="relative mx-auto flex h-dvh w-full max-w-105 flex-col overflow-hidden bg-background">
-        <Header />
-        <main className="flex-1 overflow-y-auto px-3 pt-2 pb-25">
-          <div className="flex h-full items-center justify-center">
-            <p className="text-sm text-muted-foreground">Carregando perfil...</p>
-          </div>
-        </main>
-        <BottomNav />
-      </div>
-    );
+  if (!user) {
+    return <ProtectedRoute>{null}</ProtectedRoute>;
   }
 
   return (
-    <div className="relative mx-auto flex h-dvh w-full max-w-105 flex-col overflow-hidden bg-background">
-      <Header />
+    <ProtectedRoute>
+      <div className="relative mx-auto flex h-dvh w-full max-w-105 flex-col overflow-hidden bg-background">
+        <Header />
 
-      <main className="flex-1 overflow-y-auto px-3 pt-2 pb-25">
-        <ProfileHeader user={user} onEdit={() => setIsEditing(true)} />
-        <ProfileStats stats={mock.stats} />
-        <AchievementsCard achievements={mock.achievements} />
-        <GearCard gear={mock.gear} />
-        <FavoritesCard species={mock.species} spots={mock.spots} />
-        <PreferencesCard />
-        <UnitsCard />
-        <NotificationsCard />
-        <SecurityCard />
-        <LogoutCard />
-        <AboutCard />
-      </main>
+        <main className="flex-1 overflow-y-auto px-3 pt-2 pb-25">
+          <ProfileHeader user={user} onEdit={() => setIsEditing(true)} />
+          <ProfileStats stats={mock.stats} />
+          <AchievementsCard achievements={mock.achievements} />
+          <GearCard gear={mock.gear} />
+          <FavoritesCard species={mock.species} spots={mock.spots} />
+          <PreferencesCard />
+          <UnitsCard />
+          <NotificationsCard />
+          <SecurityCard />
+          <LogoutCard />
+          <AboutCard />
+        </main>
 
-      <BottomNav />
+        <BottomNav />
 
-      {isEditing && <ProfileEditModal user={user} onClose={() => setIsEditing(false)} />}
-    </div>
+        {isEditing && <ProfileEditModal user={user} onClose={() => setIsEditing(false)} />}
+      </div>
+    </ProtectedRoute>
   );
 }

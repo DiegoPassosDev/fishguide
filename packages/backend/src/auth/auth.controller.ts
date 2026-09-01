@@ -42,7 +42,10 @@ export class AuthController {
   @Post('register')
   @ApiOperation({ summary: 'Registrar novo usuário' })
   @ApiCreatedResponse({ description: 'Usuário criado com sucesso' })
-  async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
+  async register(
+    @Body() dto: RegisterDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.auth.register(dto);
     setTokenCookie(res, result.accessToken);
     return result;
@@ -51,7 +54,10 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Autenticar usuário' })
-  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.auth.login(dto);
     setTokenCookie(res, result.accessToken);
     return result;

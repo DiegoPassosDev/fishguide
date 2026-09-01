@@ -12,6 +12,7 @@ import { WeatherCard } from "@/components/today/WeatherCard";
 import { AstronomyCard } from "@/components/today/AstronomyCard";
 import { RecommendationExplanation } from "@/components/today/RecommendationExplanation";
 import { useAuth } from "@/contexts/useAuth";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { getCurrentWeather, type WeatherData } from "@/lib/weather.api";
 import { getTides, type TideData } from "@/lib/tide.api";
 import { getAstronomy, type AstronomyData } from "@/lib/astronomy.api";
@@ -192,7 +193,8 @@ export default function TodayDashboard() {
   }, [fetchData]);
 
   return (
-    <div className="relative mx-auto flex h-dvh w-full max-w-105 flex-col overflow-hidden bg-background">
+    <ProtectedRoute>
+      <div className="relative mx-auto flex h-dvh w-full max-w-105 flex-col overflow-hidden bg-background">
       <Header lastUpdated={lastUpdated} refreshing={refreshing} />
 
       <main className="flex-1 overflow-y-auto px-3 pt-2 pb-25">
@@ -252,6 +254,7 @@ export default function TodayDashboard() {
       </main>
 
       <BottomNav />
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 }

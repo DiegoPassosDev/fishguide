@@ -23,8 +23,8 @@ interface ActiveTripViewProps {
   trip: ActiveTrip;
   elapsed: string;
   onAddCatch: () => void;
-  onEditCatch: (id: number) => void;
-  onDeleteCatch: (id: number) => void;
+  onEditCatch: (id: string) => void;
+  onDeleteCatch: (id: string) => void;
   onChangeLocation: (location: string) => void;
   onFinish: () => void;
 }
@@ -157,7 +157,7 @@ export function ActiveTripView({
           ))}
         </div>
         <div className="mt-3 flex items-center gap-2.5 rounded-xl bg-muted/40 px-3 py-2.5">
-          <span className="text-lg leading-none">{MOON_EMOJI[snapshot.moonPhase] ?? "🌙"}</span>
+          <span className="text-lg leading-none">{snapshot.moonPhase ? (MOON_EMOJI[snapshot.moonPhase] ?? "🌙") : "🌙"}</span>
           <div>
             <div className="text-[11px] text-muted-foreground">Lua</div>
             <div className="text-sm font-bold text-card-foreground">{snapshot.moonPhase}</div>
@@ -217,7 +217,7 @@ export function ActiveTripView({
       </button>
 
       {locationOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center">
+        <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center">
           <div className="w-full max-w-md rounded-t-3xl border border-border bg-background shadow-2xl sm:rounded-3xl">
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <h2 className="font-heading text-base font-bold text-foreground">Local da pescaria</h2>

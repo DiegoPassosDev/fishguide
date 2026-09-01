@@ -9,9 +9,10 @@ interface FinishTripModalProps {
   elapsed: string;
   onCancel: () => void;
   onConfirm: () => void;
+  finishing?: boolean;
 }
 
-export function FinishTripModal({ trip, elapsed, onCancel, onConfirm }: FinishTripModalProps) {
+export function FinishTripModal({ trip, elapsed, onCancel, onConfirm, finishing }: FinishTripModalProps) {
   const totalWeight = trip.catches
     .map((c) => {
       const match = c.weight.match(/^([\d,]+)/);
@@ -61,7 +62,7 @@ export function FinishTripModal({ trip, elapsed, onCancel, onConfirm }: FinishTr
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
-                <span className="text-base leading-none">{MOON_EMOJI[trip.snapshot.moonPhase] ?? "🌙"}</span>
+                <span className="text-base leading-none">{trip.snapshot.moonPhase ? (MOON_EMOJI[trip.snapshot.moonPhase] ?? "🌙") : "🌙"}</span>
                 <div>
                   <div className="text-[11px] text-muted-foreground">Lua</div>
                   <div className="text-sm font-bold text-foreground">{trip.snapshot.moonPhase}</div>
@@ -94,10 +95,15 @@ export function FinishTripModal({ trip, elapsed, onCancel, onConfirm }: FinishTr
           <button
             type="button"
             onClick={onConfirm}
-            className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            disabled={finishing}
+            className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <CheckCircle2 size={16} />
-            Finalizar
+            {finishing ? (
+              <span className="size-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
+            ) : (
+              <CheckCircle2 size={16} />
+            )}
+            {finishing ? "Finalizando..." : "Finalizar"}
           </button>
         </div>
       </div>

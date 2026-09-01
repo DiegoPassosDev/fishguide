@@ -68,7 +68,9 @@ export class WeatherService {
     private http: HttpService,
   ) {
     this.apiKey = this.config.get<string>('OPENWEATHER_API_KEY') || '';
-    this.logger.log(`API Key loaded: ${this.apiKey ? 'yes (' + this.apiKey.substring(0, 4) + '...)' : 'NO'}`);
+    this.logger.log(
+      `API Key loaded: ${this.apiKey ? 'yes (' + this.apiKey.substring(0, 4) + '...)' : 'NO'}`,
+    );
   }
 
   async getCurrentWeather(lat: number, lon: number): Promise<WeatherData> {
