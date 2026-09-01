@@ -14,6 +14,7 @@ import type { MapCategory, MapSpot } from "@/components/map/types";
 import { getFishingSpot, getFishingSpots } from "@/lib/fishing-spots.api";
 import { haversineKm, projectToMap } from "@/lib/map";
 import type { FishingSpotDetail } from "@/types/fishing-spots";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const mockSpots: MapSpot[] = [
   { id: "evento-torneio-corvina", name: "Torneio de Corvina", category: "evento", x: 34, y: 60, distanceKm: 2.8, rating: 4.3, detail: "Competição com largada na marina. Sábado às 06h. Inscrições abertas." },
@@ -128,7 +129,8 @@ export default function MapaPage() {
   }
 
   return (
-    <div className="relative mx-auto flex h-dvh w-full max-w-105 flex-col overflow-hidden bg-background">
+    <ProtectedRoute>
+      <div className="relative mx-auto flex h-dvh w-full max-w-105 flex-col overflow-hidden bg-background">
       <Header />
 
       <main className="relative flex-1 overflow-hidden">
@@ -169,6 +171,7 @@ export default function MapaPage() {
       </main>
 
       <BottomNav />
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 }

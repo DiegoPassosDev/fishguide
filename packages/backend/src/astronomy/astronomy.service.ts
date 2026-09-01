@@ -20,12 +20,18 @@ export class AstronomyService {
       const times = SunCalc.getTimes(now, lat, lon);
       const moonTimes = SunCalc.getMoonTimes(now, lat, lon);
       const illumination = SunCalc.getMoonIllumination(now);
+      const moonRise = moonTimes.rise
+        ? this.formatTime(moonTimes.rise)
+        : this.formatTime(this.findPreviousEvent(now, 'rise', lat, lon));
+      const moonSet = moonTimes.set
+        ? this.formatTime(moonTimes.set)
+        : this.formatTime(this.findPreviousEvent(now, 'set', lat, lon));
 
       const data: AstronomyData = {
         sunRise: this.formatTime(times.sunrise),
         sunSet: this.formatTime(times.sunset),
-        moonRise: this.formatTime(moonTimes.rise),
-        moonSet: this.formatTime(moonTimes.set),
+        moonRise,
+        moonSet,
         moonPhase: this.getMoonPhaseName(illumination.phase),
         moonIllumination: Math.round(illumination.fraction * 100),
       };
@@ -46,6 +52,25 @@ export class AstronomyService {
     const h = String(date.getHours()).padStart(2, '0');
     const m = String(date.getMinutes()).padStart(2, '0');
     return `${h}:${m}`;
+  }
+
+  private findPreviousEvent(
+    reference: Date,
+    type: 'rise' | 'set',
+    lat: number,
+    lon: number,
+  ): Date | undefined {
+    for (let i = 1; i <= 5; i++) {
+      const day = new Date(
+        reference.getFullYear(),
+        reference.getMonth(),
+        reference.getDate() - i,
+      );
+      const moonTimes = SunCalc.getMoonTimes(day, lat, lon);
+      const event = type === 'rise' ? moonTimes.rise : moonTimes.set;
+      if (event && !Number.isNaN(event.getTime())) return event;
+    }
+    return undefined;
   }
 
   private getMoonPhaseName(phase: number): string {

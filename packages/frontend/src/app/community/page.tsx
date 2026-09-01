@@ -10,6 +10,7 @@ import { PostCard } from "@/components/community/PostCard";
 import { TOPIC_ORDER } from "@/components/community/CommunityTopics";
 import { useAuth } from "@/contexts/useAuth";
 import type { Post, PostCatch } from "@/components/community/types";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const mockPosts: Post[] = [
   {
@@ -178,10 +179,11 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="relative mx-auto flex h-dvh w-full max-w-105 flex-col overflow-hidden bg-background">
-      <Header />
+    <ProtectedRoute>
+      <div className="relative mx-auto flex h-dvh w-full max-w-105 flex-col overflow-hidden bg-background">
+        <Header />
 
-      <main className="flex-1 overflow-y-auto px-3 pt-2 pb-25">
+        <main className="flex-1 overflow-y-auto px-3 pt-2 pb-25">
         <div className="mb-3 px-1">
           <h1 className="font-heading text-xl font-bold text-foreground">Comunidade</h1>
           <p className="text-xs text-muted-foreground">Publicações de pescadores como você</p>
@@ -232,6 +234,7 @@ export default function CommunityPage() {
           onPublish={publish}
         />
       )}
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 }

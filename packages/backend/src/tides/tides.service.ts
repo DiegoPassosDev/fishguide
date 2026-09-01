@@ -70,7 +70,11 @@ export class TidesService {
 
   constructor(private http: HttpService) {}
 
-  async getTidesByLocation(lat: number, lon: number, state?: string): Promise<TideData> {
+  async getTidesByLocation(
+    lat: number,
+    lon: number,
+    state?: string,
+  ): Promise<TideData> {
     try {
       let stateCode = state;
       if (!stateCode) {
@@ -83,8 +87,10 @@ export class TidesService {
 
       const harborUrl = `${this.baseUrl}/nearest-harbor-independent-state/[${lat},${lon}]`;
       this.logger.log(`Finding nearest harbor: ${harborUrl}`);
-      const harborResponse = await firstValueFrom(this.http.get<NearestHarborResponse>(harborUrl));
-      
+      const harborResponse = await firstValueFrom(
+        this.http.get<NearestHarborResponse>(harborUrl),
+      );
+
       if (harborResponse.data.total === 0) {
         throw new Error(`No harbor found for coordinates [${lat}, ${lon}]`);
       }
@@ -92,7 +98,9 @@ export class TidesService {
       const harbor = harborResponse.data.data[0];
       const tideUrl = `${this.baseUrl}/tabua-mare/${harbor.id}/${month}/${day}`;
       this.logger.log(`Fetching tide data: ${tideUrl}`);
-      const tideResponse = await firstValueFrom(this.http.get<TabuaMareResponse>(tideUrl));
+      const tideResponse = await firstValueFrom(
+        this.http.get<TabuaMareResponse>(tideUrl),
+      );
 
       if (tideResponse.data.total === 0) {
         throw new Error(`No tide data found for harbor ${harbor.id}`);
@@ -105,7 +113,11 @@ export class TidesService {
         throw new Error(`No tide hours available for harbor ${harbor.id}`);
       }
 
-      return this.calculateTideData(todayData.hours, harbor.harbor_name, harbor.state);
+      return this.calculateTideData(
+        todayData.hours,
+        harbor.harbor_name,
+        harbor.state,
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to fetch tide data: ${message}`);
@@ -113,7 +125,11 @@ export class TidesService {
     }
   }
 
-  private calculateTideData(hours: TabuaMareHour[], harborName: string, state: string): TideData {
+  private calculateTideData(
+    hours: TabuaMareHour[],
+    harborName: string,
+    state: string,
+  ): TideData {
     const now = new Date();
     const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
 
@@ -124,11 +140,14 @@ export class TidesService {
 
     const round = (v: number) => Math.round(v * 100) / 100;
 
-    const sortedHours = [...hours].sort((a, b) => parseTime(a.hour) - parseTime(b.hour));
+    const sortedHours = [...hours].sort(
+      (a, b) => parseTime(a.hour) - parseTime(b.hour),
+    );
 
     const events: TideEvent[] = sortedHours.map((h, i) => {
       const prev = i > 0 ? sortedHours[i - 1].level : undefined;
-      const next = i < sortedHours.length - 1 ? sortedHours[i + 1].level : undefined;
+      const next =
+        i < sortedHours.length - 1 ? sortedHours[i + 1].level : undefined;
       let type: 'alta' | 'baixa';
       if (prev === undefined && next === undefined) {
         type = 'alta';
@@ -153,7 +172,9 @@ export class TidesService {
     let proximaMudanca = '';
     let proximaEm = '';
 
-    const nextIdx = events.findIndex((e) => parseTime(e.time) > currentTimeInMinutes);
+    const nextIdx = events.findIndex(
+      (e) => parseTime(e.time) > currentTimeInMinutes,
+    );
 
     if (nextIdx === -1) {
       const last = events[events.length - 1];
@@ -164,12 +185,18 @@ export class TidesService {
     } else {
       const nextEvent = events[nextIdx];
       const nextTime = parseTime(nextEvent.time);
-      const prevTime = nextIdx > 0 ? parseTime(events[nextIdx - 1].time) : nextTime - HALF_CYCLE_MINUTES;
+      const prevTime =
+        nextIdx > 0
+          ? parseTime(events[nextIdx - 1].time)
+          : nextTime - HALF_CYCLE_MINUTES;
 
       status = nextEvent.type === 'alta' ? 'Enchendo' : 'Vazando';
       const range = nextTime - prevTime;
       const elapsed = currentTimeInMinutes - prevTime;
-      progresso = range > 0 ? Math.min(100, Math.max(0, Math.round((elapsed / range) * 100))) : 0;
+      progresso =
+        range > 0
+          ? Math.min(100, Math.max(0, Math.round((elapsed / range) * 100)))
+          : 0;
       proximaMudanca = nextEvent.type;
       proximaEm = this.formatTimeDifference(nextTime - currentTimeInMinutes);
     }

@@ -17,7 +17,10 @@ export class TidesQueryDto {
   @Max(180)
   lon: number;
 
-  @ApiPropertyOptional({ description: 'Sigla do estado (ex: se, rj)', example: 'se' })
+  @ApiPropertyOptional({
+    description: 'Sigla do estado (ex: se, rj)',
+    example: 'se',
+  })
   @IsOptional()
   @IsString()
   state?: string;

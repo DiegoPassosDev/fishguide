@@ -17,7 +17,10 @@ export class FgScoreQueryDto {
   @Max(180)
   lon: number;
 
-  @ApiPropertyOptional({ description: 'Código do estado (ex: se, ba, rj)', example: 'se' })
+  @ApiPropertyOptional({
+    description: 'Código do estado (ex: se, ba, rj)',
+    example: 'se',
+  })
   @IsOptional()
   state?: string;
 }

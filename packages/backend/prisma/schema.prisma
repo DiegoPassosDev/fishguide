@@ -121,10 +121,12 @@ model SpeciesOnSpot {
 model FishingTrip {
   id          String   @id @default(uuid()) @db.Uuid
   date        DateTime
+  status      String   @default("active")
   userId      String   @map("user_id") @db.Uuid
   user        User     @relation(fields: [userId], references: [id])
   spotId      String?  @map("spot_id") @db.Uuid
   spot        FishingSpot? @relation(fields: [spotId], references: [id])
+  location    String?
   notes       String?
   privacy     String   @default("public")
   weatherSnapshot Json? @map("weather_snapshot")

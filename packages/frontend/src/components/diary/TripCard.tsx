@@ -3,8 +3,10 @@
 import {
   CalendarDays,
   ChevronRight,
+  Clock,
   MapPin,
   Thermometer,
+  Timer,
   Waves,
   Wind,
 } from "lucide-react";
@@ -19,6 +21,8 @@ interface TripCardProps {
 
 export function TripCard({ trip, onOpen }: TripCardProps) {
   const date = new Date(trip.startedAt);
+  const endDate = trip.finishedAt ? new Date(trip.finishedAt) : null;
+  const duration = formatMinutes(trip.startedAt, trip.finishedAt ?? trip.startedAt);
   const totalWeight = trip.catches.reduce((s, c) => s + parseWeightKg(c.weight), 0);
   const species = Array.from(new Set(trip.catches.map((c) => c.species)));
 
@@ -28,10 +32,16 @@ export function TripCard({ trip, onOpen }: TripCardProps) {
     month: "short",
     year: "numeric",
   });
-  const timeText = date.toLocaleTimeString("pt-BR", {
+  const startTime = date.toLocaleTimeString("pt-BR", {
     hour: "2-digit",
     minute: "2-digit",
   });
+  const endTime = endDate
+    ? endDate.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : null;
 
   return (
     <button
@@ -44,7 +54,22 @@ export function TripCard({ trip, onOpen }: TripCardProps) {
           <CalendarDays size={13} className="text-primary" />
           {dateText}
         </div>
-        <span className="font-mono text-xs font-bold text-primary">{timeText}</span>
+        <span className="flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 font-mono text-xs font-bold text-primary">
+          <Timer size={12} />
+          {duration}
+        </span>
+      </div>
+
+      <div className="mb-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
+        <span className="flex items-center gap-1.5">
+          <Clock size={12} className="text-primary" />
+          Início: <span className="font-mono font-semibold text-foreground">{startTime}</span>
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Clock size={12} className="text-primary" />
+          Fim:{" "}
+          <span className="font-mono font-semibold text-foreground">{endTime ?? "—"}</span>
+        </span>
       </div>
 
       <div className="flex items-center gap-2 text-sm font-bold text-foreground">
@@ -87,10 +112,20 @@ export function TripCard({ trip, onOpen }: TripCardProps) {
           {trip.snapshot.wind} km/h
         </span>
         <span className="ml-auto flex items-center gap-1.5 text-muted-foreground">
-          {MOON_EMOJI[trip.snapshot.moonPhase] ?? "🌙"}
+          {trip.snapshot.moonPhase ? (MOON_EMOJI[trip.snapshot.moonPhase] ?? "🌙") : "🌙"}
           <ChevronRight size={14} />
         </span>
       </div>
     </button>
   );
+}
+
+function formatMinutes(startedAt: number, endAt: number): string {
+  const startMin = Math.floor(startedAt / 60000);
+  const endMin = Math.floor(endAt / 60000);
+  const total = Math.max(0, endMin - startMin);
+  const hours = Math.floor(total / 60);
+  const minutes = total % 60;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(hours)}:${pad(minutes)}`;
 }

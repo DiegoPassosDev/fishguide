@@ -1,16 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Camera, Images, X } from "lucide-react";
 import type { ChangeEvent } from "react";
 import { useToast } from "@/contexts/ToastContext";
-import { SPECIES } from "./trip";
 import type { Catch } from "./types";
+import { getSpecies } from "@/lib/fishing-trips.api";
 
 interface CatchModalProps {
   editing?: Catch;
   onClose: () => void;
-  onSave: (draft: { species: string; weight: string; length: string; notes: string; photoUrl?: string }) => void;
+  onSave: (draft: { species: string; speciesId: string; weight: string; length: string; notes: string; photoUrl?: string }) => void;
 }
 
 const inputClass =
@@ -36,21 +36,49 @@ function Field({
 export function CatchModal({ editing, onClose, onSave }: CatchModalProps) {
   const { showToast } = useToast();
   const [species, setSpecies] = useState(editing?.species ?? "");
+  const [speciesId, setSpeciesId] = useState(editing?.speciesId ?? "");
   const [weight, setWeight] = useState(editing?.weight ?? "");
   const [length, setLength] = useState(editing?.length ?? "");
   const [notes, setNotes] = useState(editing?.notes ?? "");
   const [photoUrl, setPhotoUrl] = useState<string | undefined>(editing?.photoUrl);
+  const [speciesList, setSpeciesList] = useState<Array<{ id: string; name: string }>>([]);
   const galleryInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    getSpecies()
+      .then((list) => setSpeciesList(list))
+      .catch(() => {});
+  }, []);
+
+  function handleSpeciesChange(value: string) {
+    setSpecies(value);
+    const match = speciesList.find((s) => s.name.toLowerCase() === value.toLowerCase());
+    setSpeciesId(match?.id ?? "");
+  }
 
   function handlePhotoChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") setPhotoUrl(reader.result);
+
+    const img = new window.Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const MAX = 800;
+      let w = img.width;
+      let h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
+      setPhotoUrl(canvas.toDataURL("image/jpeg", 0.7));
+      URL.revokeObjectURL(url);
     };
-    reader.readAsDataURL(file);
+    img.src = url;
   }
 
   function handleSave() {
@@ -59,8 +87,13 @@ export function CatchModal({ editing, onClose, onSave }: CatchModalProps) {
       showToast("Informe a espécie capturada.", "error");
       return;
     }
+    if (!speciesId) {
+      showToast("Selecione uma espécie da lista.", "error");
+      return;
+    }
     onSave({
       species: subject,
+      speciesId,
       weight: weight.trim(),
       length: length.trim(),
       notes: notes.trim(),
@@ -91,13 +124,13 @@ export function CatchModal({ editing, onClose, onSave }: CatchModalProps) {
             <input
               list="fishing-species"
               value={species}
-              onChange={(e) => setSpecies(e.target.value)}
+              onChange={(e) => handleSpeciesChange(e.target.value)}
               placeholder="Ex.: Robalo"
               className={inputClass}
             />
             <datalist id="fishing-species">
-              {SPECIES.map((s) => (
-                <option key={s} value={s} />
+              {speciesList.map((s) => (
+                <option key={s.id} value={s.name} />
               ))}
             </datalist>
           </Field>

@@ -16,13 +16,14 @@ import {
 } from "lucide-react";
 import { formatElapsed, MOON_EMOJI } from "../fishing/trip";
 import { formatWeight, parseWeightKg } from "./trips";
+import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
 import type { Catch } from "../fishing/types";
 import type { TripRecord } from "./types";
 
 interface TripDetailModalProps {
   trip: TripRecord;
   onClose: () => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
   onSave: (updated: TripRecord) => void;
 }
 
@@ -42,7 +43,7 @@ export function TripDetailModal({ trip, onClose, onDelete, onSave }: TripDetailM
   const [dateDraft, setDateDraft] = useState(toLocalInput(trip.startedAt));
 
   const totalWeight = trip.catches.reduce((s, c) => s + parseWeightKg(c.weight), 0);
-  const duration = formatElapsed(trip.startedAt, trip.finishedAt);
+  const duration = formatElapsed(trip.startedAt, trip.finishedAt ?? trip.startedAt);
   const { snapshot } = trip;
 
   const weatherItems = [
@@ -137,7 +138,7 @@ export function TripDetailModal({ trip, onClose, onDelete, onSave }: TripDetailM
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
-                <span className="text-base leading-none">{MOON_EMOJI[snapshot.moonPhase] ?? "🌙"}</span>
+                <span className="text-base leading-none">{snapshot.moonPhase ? (MOON_EMOJI[snapshot.moonPhase] ?? "🌙") : "🌙"}</span>
                 <div>
                   <div className="text-[11px] text-muted-foreground">Lua</div>
                   <div className="text-sm font-bold text-foreground">{snapshot.moonPhase}</div>
@@ -197,25 +198,7 @@ export function TripDetailModal({ trip, onClose, onDelete, onSave }: TripDetailM
           </section>
         </div>
 
-        {confirmingDelete ? (
-          <div className="flex gap-3 border-t border-border px-5 py-4">
-            <button
-              type="button"
-              onClick={() => setConfirmingDelete(false)}
-              className="flex-1 rounded-full border border-border bg-background py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
-            >
-              Cancelar
-            </button>
-            <button
-              type="button"
-              onClick={() => onDelete(trip.id)}
-              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-destructive py-3 text-sm font-semibold text-destructive-foreground transition-opacity hover:opacity-90"
-            >
-              <Trash2 size={16} />
-              Excluir
-            </button>
-          </div>
-        ) : editing ? (
+        {confirmingDelete ? null : editing ? (
           <div className="flex gap-3 border-t border-border px-5 py-4">
             <button
               type="button"
@@ -258,6 +241,15 @@ export function TripDetailModal({ trip, onClose, onDelete, onSave }: TripDetailM
           </div>
         )}
       </div>
+
+      {confirmingDelete && (
+        <ConfirmDeleteModal
+          title="Excluir pescaria?"
+          message="Esta ação não pode ser desfeita. A pescaria e suas capturas serão removidas permanentemente."
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => onDelete(trip.id)}
+        />
+      )}
     </div>
   );
 }

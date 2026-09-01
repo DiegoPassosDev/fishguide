@@ -10,7 +10,7 @@ export function LogoutCard() {
 
   const handleLogout = async () => {
     await logout();
-    router.push("/");
+    router.replace("/login");
   };
 
   return (

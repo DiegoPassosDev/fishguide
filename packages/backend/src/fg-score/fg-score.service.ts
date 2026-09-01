@@ -2,7 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as SunCalc from 'suncalc';
 import { WeatherService, WeatherData } from '../weather/weather.service.js';
 import { TidesService, TideData } from '../tides/tides.service.js';
-import { AstronomyService, AstronomyData } from '../astronomy/astronomy.service.js';
+import {
+  AstronomyService,
+  AstronomyData,
+} from '../astronomy/astronomy.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 export interface SolunarPeriod {
@@ -82,7 +85,11 @@ export class FgScoreService {
     private prisma: PrismaService,
   ) {}
 
-  async getScore(lat: number, lon: number, state?: string): Promise<FgScoreData> {
+  async getScore(
+    lat: number,
+    lon: number,
+    state?: string,
+  ): Promise<FgScoreData> {
     const [weatherData, tideData, nearbySpots] = await Promise.all([
       this.weather.getCurrentWeather(lat, lon).catch(() => null),
       this.tides.getTidesByLocation(lat, lon, state).catch(() => null),
@@ -98,9 +105,17 @@ export class FgScoreService {
 
     const factors = this.computeFactors(weatherData, tideData, astronomyData);
     const score = this.computeWeightedScore(factors);
-    const confidence = this.computeConfidence(weatherData, tideData, astronomyData);
+    const confidence = this.computeConfidence(
+      weatherData,
+      tideData,
+      astronomyData,
+    );
     const solunar = this.computeSolunar(lat, lon, astronomyData);
-    const opportunities = this.computeOpportunities(score, solunar, nearbySpots);
+    const opportunities = this.computeOpportunities(
+      score,
+      solunar,
+      nearbySpots,
+    );
     const reasons = this.computeReasons(factors, tideData, astronomyData);
     const subtitle = this.getSubtitle(score);
 
@@ -108,7 +123,9 @@ export class FgScoreService {
       score,
       confidence,
       subtitle,
-      summary: { text: this.getSummaryText(score, factors, tideData, astronomyData) },
+      summary: {
+        text: this.getSummaryText(score, factors, tideData, astronomyData),
+      },
       solunar,
       opportunities,
       reasons,
@@ -172,7 +189,10 @@ export class FgScoreService {
 
   private computeWeightedScore(factors: ScoreFactor[]): number {
     const totalWeight = factors.reduce((sum, f) => sum + f.weight, 0);
-    const totalContribution = factors.reduce((sum, f) => sum + f.contribution, 0);
+    const totalContribution = factors.reduce(
+      (sum, f) => sum + f.contribution,
+      0,
+    );
     return Math.round(totalContribution / totalWeight);
   }
 
@@ -218,14 +238,14 @@ export class FgScoreService {
   private scoreMoon(astronomy: AstronomyData | null): number {
     if (!astronomy) return 60;
     const phaseMap: Record<string, number> = {
-      'Nova': 90,
-      'Crescente': 82,
+      Nova: 90,
+      Crescente: 82,
       'Quarto Crescente': 72,
       'Crescente Gibosa': 65,
-      'Cheia': 55,
+      Cheia: 55,
       'Minguante Gibosa': 50,
       'Quarto Minguante': 58,
-      'Minguante': 65,
+      Minguante: 65,
     };
     const base = phaseMap[astronomy.moonPhase] ?? 60;
     const illum = astronomy.moonIllumination;
@@ -286,7 +306,11 @@ export class FgScoreService {
 
   // --- Solunar ---
 
-  private computeSolunar(lat: number, lon: number, astronomy: AstronomyData | null): SolunarData {
+  private computeSolunar(
+    lat: number,
+    lon: number,
+    astronomy: AstronomyData | null,
+  ): SolunarData {
     const now = new Date();
     const moonTimes = SunCalc.getMoonTimes(now, lat, lon);
     const moonPos = SunCalc.getMoonPosition(now, lat, lon);
@@ -345,14 +369,20 @@ export class FgScoreService {
     for (let h = 0; h < 24; h++) {
       const checkTime = new Date(today.getTime() + h * 60 * 60 * 1000);
       const pos = SunCalc.getMoonPosition(checkTime, lat, lon);
-      const prevPos = SunCalc.getMoonPosition(new Date(checkTime.getTime() - 3600000), lat, lon);
+      const prevPos = SunCalc.getMoonPosition(
+        new Date(checkTime.getTime() - 3600000),
+        lat,
+        lon,
+      );
 
       const wasBelow = prevPos.altitude < 0;
       const isAbove = pos.altitude >= 0;
 
       if (wasBelow && isAbove) {
         const start = this.formatTime(checkTime);
-        const end = this.formatTime(new Date(checkTime.getTime() + 2 * 3600000));
+        const end = this.formatTime(
+          new Date(checkTime.getTime() + 2 * 3600000),
+        );
         phases.push({
           timeRange: `${start} - ${end}`,
           label: 'Saída da lua',
@@ -363,7 +393,9 @@ export class FgScoreService {
 
       if (!wasBelow && !isAbove) {
         const start = this.formatTime(checkTime);
-        const end = this.formatTime(new Date(checkTime.getTime() + 2 * 3600000));
+        const end = this.formatTime(
+          new Date(checkTime.getTime() + 2 * 3600000),
+        );
         phases.push({
           timeRange: `${start} - ${end}`,
           label: 'Pôr da lua',
@@ -377,7 +409,9 @@ export class FgScoreService {
     const transit = SunCalc.getMoonPosition(transitTime, lat, lon);
     if (transit.altitude > 0) {
       const start = this.formatTime(transitTime);
-      const end = this.formatTime(new Date(transitTime.getTime() + 2 * 3600000));
+      const end = this.formatTime(
+        new Date(transitTime.getTime() + 2 * 3600000),
+      );
       phases.push({
         timeRange: `${start} - ${end}`,
         label: 'Trânsito lunar (lua sobre as nossas cabeças)',
@@ -387,7 +421,9 @@ export class FgScoreService {
     }
     if (transit.altitude <= 0) {
       const start = this.formatTime(transitTime);
-      const end = this.formatTime(new Date(transitTime.getTime() + 2 * 3600000));
+      const end = this.formatTime(
+        new Date(transitTime.getTime() + 2 * 3600000),
+      );
       phases.push({
         timeRange: `${start} - ${end}`,
         label: 'Trânsito lunar oposto (lua sob os nossos pés)',
@@ -407,7 +443,10 @@ export class FgScoreService {
 
   // --- Opportunities ---
 
-  private async findNearbySpecies(lat: number, lon: number): Promise<NearbySpot[]> {
+  private async findNearbySpecies(
+    lat: number,
+    lon: number,
+  ): Promise<NearbySpot[]> {
     const delta = 1;
     const spots = await this.prisma.client.fishingSpot.findMany({
       where: {
@@ -443,13 +482,17 @@ export class FgScoreService {
     solunar: SolunarData,
     spots: NearbySpot[],
   ): Opportunity[] {
-    const speciesMap = new Map<string, { species: SpeciesRecord; spots: string[] }>();
+    const speciesMap = new Map<
+      string,
+      { species: SpeciesRecord; spots: string[] }
+    >();
 
     for (const spot of spots) {
       for (const sp of spot.species) {
         const existing = speciesMap.get(sp.id);
         if (existing) {
-          if (!existing.spots.includes(spot.name)) existing.spots.push(spot.name);
+          if (!existing.spots.includes(spot.name))
+            existing.spots.push(spot.name);
         } else {
           speciesMap.set(sp.id, { species: sp, spots: [spot.name] });
         }
@@ -465,16 +508,25 @@ export class FgScoreService {
 
       if (species.bestTide) {
         const tideKeywords = species.bestTide.toLowerCase();
-        if (tideKeywords.includes('enchente') || tideKeywords.includes('enchendo')) {
+        if (
+          tideKeywords.includes('enchente') ||
+          tideKeywords.includes('enchendo')
+        ) {
           matchScore += 15;
-        } else if (tideKeywords.includes('vazante') || tideKeywords.includes('vazando')) {
+        } else if (
+          tideKeywords.includes('vazante') ||
+          tideKeywords.includes('vazando')
+        ) {
           matchScore += 5;
         }
       }
 
       if (species.bestMoon) {
         const moonKeywords = species.bestMoon.toLowerCase();
-        if (moonKeywords.includes('crescente') || moonKeywords.includes('nova')) {
+        if (
+          moonKeywords.includes('crescente') ||
+          moonKeywords.includes('nova')
+        ) {
           matchScore += 10;
         } else if (moonKeywords.includes('cheia')) {
           matchScore += 5;
@@ -532,9 +584,9 @@ export class FgScoreService {
 
     if (astronomy) {
       const moonReasons: Record<string, string> = {
-        'Nova': 'Lua nova — maior atividade aquática',
-        'Crescente': 'Lua crescente — condições favoráveis',
-        'Cheia': 'Lua cheia — iluminação noturna alta',
+        Nova: 'Lua nova — maior atividade aquática',
+        Crescente: 'Lua crescente — condições favoráveis',
+        Cheia: 'Lua cheia — iluminação noturna alta',
       };
       if (moonReasons[astronomy.moonPhase]) {
         reasons.push(moonReasons[astronomy.moonPhase]);
@@ -550,15 +602,29 @@ export class FgScoreService {
 
   private getFactorReasonText(factor: ScoreFactor): string {
     const texts: Record<string, (v: number) => string> = {
-      Maré: (v) => (v >= 75 ? 'Maré favorável — enchente com boa amplitude' : 'Maré em transição'),
-      Pressão: (v) => (v >= 80 ? 'Pressão atmosférica estável' : 'Pressão em variação'),
-      Lua: (v) => (v >= 75 ? `Fase lunar favorável` : 'Lua em fase intermediária'),
-      Horário: (v) => (v >= 80 ? 'Horário ideal para pesca' : 'Horário fora do pico'),
-      Clima: (v) => (v >= 75 ? 'Clima favorável — sem chuva' : 'Condições de clima variável'),
-      Vento: (v) => (v >= 80 ? 'Vento calmo — condições excelentes' : 'Vento moderado'),
-      Temperatura: (v) => (v >= 80 ? 'Temperatura ideal para atividade aquática' : 'Temperatura fora da faixa ideal'),
+      Maré: (v) =>
+        v >= 75
+          ? 'Maré favorável — enchente com boa amplitude'
+          : 'Maré em transição',
+      Pressão: (v) =>
+        v >= 80 ? 'Pressão atmosférica estável' : 'Pressão em variação',
+      Lua: (v) =>
+        v >= 75 ? `Fase lunar favorável` : 'Lua em fase intermediária',
+      Horário: (v) =>
+        v >= 80 ? 'Horário ideal para pesca' : 'Horário fora do pico',
+      Clima: (v) =>
+        v >= 75 ? 'Clima favorável — sem chuva' : 'Condições de clima variável',
+      Vento: (v) =>
+        v >= 80 ? 'Vento calmo — condições excelentes' : 'Vento moderado',
+      Temperatura: (v) =>
+        v >= 80
+          ? 'Temperatura ideal para atividade aquática'
+          : 'Temperatura fora da faixa ideal',
     };
-    return (texts[factor.name]?.(factor.value)) ?? `${factor.name} dentro da normalidade`;
+    return (
+      texts[factor.name]?.(factor.value) ??
+      `${factor.name} dentro da normalidade`
+    );
   }
 
   private getSubtitle(score: number): string {
