@@ -10,7 +10,8 @@ interface JwtPayload {
 }
 
 function cookieExtractor(req: Request): string | null {
-  return req?.cookies?.token ?? null;
+  if (typeof req?.cookies?.token !== 'string') return null;
+  return req.cookies.token;
 }
 
 @Injectable()
