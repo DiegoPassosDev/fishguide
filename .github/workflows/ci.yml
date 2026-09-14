@@ -30,6 +30,10 @@ jobs:
       - name: Lint frontend
         run: pnpm --filter frontend run lint
 
+      - name: Generate Prisma client
+        working-directory: packages/backend
+        run: pnpm exec prisma generate
+
       - name: Lint backend
         run: pnpm --filter backend exec eslint "src/**/*.ts" "test/**/*.ts"
 
@@ -54,6 +58,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma client
+        working-directory: packages/backend
+        run: pnpm exec prisma generate
+
       - name: Build all packages
         run: pnpm build
 
@@ -76,6 +84,7 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: postgresql://fishguide:fishguide_dev@localhost:5432/fishguide?schema=public
+      NODE_OPTIONS: --experimental-vm-modules
     defaults:
       run:
         working-directory: packages/backend
