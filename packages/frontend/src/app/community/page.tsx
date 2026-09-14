@@ -18,8 +18,14 @@ import {
   sharePost,
   toggleFollow,
   togglePostLike,
+  updatePost,
 } from "@/lib/community.api";
-import type { CommunityPost, CreatePostInput, TopicCount } from "@/types/community";
+import type {
+  CommunityPost,
+  CreatePostInput,
+  TopicCount,
+  UpdatePostInput,
+} from "@/types/community";
 
 export default function CommunityPage() {
   const { showToast } = useToast();
@@ -29,6 +35,7 @@ export default function CommunityPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
   const [composerOpen, setComposerOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<CommunityPost | null>(null);
 
   const topicsWithAll = useMemo(
     () => [{ name: "Para Você", count: posts.length }, ...topics],
@@ -149,6 +156,11 @@ export default function CommunityPage() {
     }
   }
 
+  function handleEdit(post: CommunityPost) {
+    setEditingPost(post);
+    setComposerOpen(true);
+  }
+
   function bumpComment(id: string, delta: 1 | -1) {
     setPosts((prev) =>
       prev.map((post) =>
@@ -159,9 +171,19 @@ export default function CommunityPage() {
     );
   }
 
-  async function publish(draft: CreatePostInput): Promise<boolean> {
+  async function publish(
+    draft: CreatePostInput | UpdatePostInput,
+  ): Promise<boolean> {
     try {
-      const created = await createPost(draft);
+      if (editingPost) {
+        const updated = await updatePost(editingPost.id, draft as UpdatePostInput);
+        setPosts((prev) =>
+          prev.map((post) => (post.id === updated.id ? updated : post)),
+        );
+        showToast("Publicação atualizada!", "success");
+        return true;
+      }
+      const created = await createPost(draft as CreatePostInput);
       setPosts((prev) => [created, ...prev]);
       setActiveTopic("Para Você");
       void loadTopics();
@@ -186,7 +208,10 @@ export default function CommunityPage() {
 
           <button
             type="button"
-            onClick={() => setComposerOpen(true)}
+            onClick={() => {
+              setEditingPost(null);
+              setComposerOpen(true);
+            }}
             className="mt-5 mb-4 flex w-full items-center justify-center gap-2 rounded-full border border-border bg-card py-3 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-accent"
           >
             <Plus size={16} className="text-primary" />
@@ -239,6 +264,7 @@ export default function CommunityPage() {
                   onToggleLike={(id) => void toggleLike(id)}
                   onShare={(id) => void handleShare(id)}
                   onFollow={(postId) => void handleFollow(postId)}
+                  onEdit={handleEdit}
                   onDelete={(id) => void handleDelete(id)}
                   onCommentAdded={(id) => bumpComment(id, 1)}
                   onCommentRemoved={(id) => bumpComment(id, -1)}
@@ -252,8 +278,22 @@ export default function CommunityPage() {
 
         {composerOpen && (
           <ComposerModal
+            key={editingPost?.id ?? "new"}
             topics={TOPIC_ORDER}
-            onClose={() => setComposerOpen(false)}
+            initial={
+              editingPost
+                ? {
+                    content: editingPost.content,
+                    topic: editingPost.topic ?? undefined,
+                    photo: editingPost.photo,
+                    catchInfo: editingPost.catchInfo ?? undefined,
+                  }
+                : undefined
+            }
+            onClose={() => {
+              setEditingPost(null);
+              setComposerOpen(false);
+            }}
             onPublish={publish}
           />
         )}

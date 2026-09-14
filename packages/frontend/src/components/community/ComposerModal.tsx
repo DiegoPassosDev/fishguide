@@ -8,28 +8,47 @@ import type { PostCatchInfo } from "@/types/community";
 
 interface ComposerModalProps {
   topics: string[];
+  initial?: {
+    content?: string;
+    topic?: string;
+    photo?: string | null;
+    catchInfo?: PostCatchInfo | null;
+  };
   onClose: () => void;
   onPublish: (draft: {
     topic: string;
     content: string;
     catchInfo?: PostCatchInfo;
-    photoUrl?: string;
+    photo?: string | null;
   }) => Promise<boolean>;
 }
 
 const inputClass =
   "w-full rounded-xl border border-input bg-muted/50 px-3.5 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary";
 
-export function ComposerModal({ topics, onClose, onPublish }: ComposerModalProps) {
+function normalizeWeight(raw: string): string {
+  const value = raw.trim();
+  if (!value) return value;
+  const numeric = /^\d+(?:[.,]\d+)?$/.test(value);
+  return numeric ? `${value} kg` : value;
+}
+
+export function ComposerModal({
+  topics,
+  initial,
+  onClose,
+  onPublish,
+}: ComposerModalProps) {
   const { showToast } = useToast();
-  const [topic, setTopic] = useState("");
-  const [content, setContent] = useState("");
-  const [includeCatch, setIncludeCatch] = useState(false);
-  const [species, setSpecies] = useState("");
-  const [weight, setWeight] = useState("");
-  const [location, setLocation] = useState("");
-  const [tide, setTide] = useState("");
-  const [photoUrl, setPhotoUrl] = useState<string>();
+  const editing = Boolean(initial);
+  const [topic, setTopic] = useState(initial?.topic ?? "");
+  const [content, setContent] = useState(initial?.content ?? "");
+  const [includeCatch, setIncludeCatch] = useState(Boolean(initial?.catchInfo));
+  const [species, setSpecies] = useState(initial?.catchInfo?.species ?? "");
+  const [weight, setWeight] = useState(initial?.catchInfo?.weight ?? "");
+  const [location, setLocation] = useState(initial?.catchInfo?.location ?? "");
+  const [tide, setTide] = useState(initial?.catchInfo?.tide ?? "");
+  const [photoUrl, setPhotoUrl] = useState<string | undefined>(initial?.photo ?? undefined);
   const [locating, setLocating] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const cameraInput = useRef<HTMLInputElement>(null);
@@ -109,12 +128,12 @@ export function ComposerModal({ topics, onClose, onPublish }: ComposerModalProps
       const ok = await onPublish({
         topic: subject,
         content: text,
-        photoUrl,
+        photo: photoUrl ?? null,
         catchInfo:
           includeCatch && species.trim()
             ? {
                 species: species.trim() || undefined,
-                weight: weight.trim() || undefined,
+                weight: normalizeWeight(weight) || undefined,
                 location: location.trim() || undefined,
                 tide: tide.trim() || undefined,
               }
@@ -130,7 +149,9 @@ export function ComposerModal({ topics, onClose, onPublish }: ComposerModalProps
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center">
       <div className="flex max-h-[90dvh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl border border-border bg-background shadow-2xl sm:rounded-3xl">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <h2 className="font-heading text-base font-bold text-foreground">Nova publicação</h2>
+          <h2 className="font-heading text-base font-bold text-foreground">
+            {editing ? "Editar publicação" : "Nova publicação"}
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -330,7 +351,7 @@ export function ComposerModal({ topics, onClose, onPublish }: ComposerModalProps
             ) : (
               <Send size={16} />
             )}
-            Publicar
+            {editing ? "Salvar" : "Publicar"}
           </button>
         </div>
       </div>

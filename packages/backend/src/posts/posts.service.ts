@@ -8,6 +8,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service.js';
 import { Prisma } from '../../generated/prisma/client.js';
 import { CreatePostDto } from './dto/create-post.dto.js';
+import { UpdatePostDto } from './dto/update-post.dto.js';
 import { CreateCommentDto } from './dto/create-comment.dto.js';
 import { ListPostsQueryDto } from './dto/list-posts-query.dto.js';
 
@@ -20,6 +21,7 @@ const POST_SELECT = {
   likes: true,
   shares: true,
   createdAt: true,
+  updatedAt: true,
   userId: true,
   user: {
     select: {
@@ -58,6 +60,7 @@ type PostRow = {
   likes: number;
   shares: number;
   createdAt: Date;
+  updatedAt: Date;
   userId: string;
   user: { id: string; name: string; avatar: string | null; verified: boolean };
   _count: { comments: number };
@@ -144,6 +147,39 @@ export class PostsService {
     });
 
     return this.toResponse(post, Boolean(liked), Boolean(followed));
+  }
+
+  async update(postId: string, userId: string, dto: UpdatePostDto) {
+    const post = await this.findPost(postId);
+
+    const requester = await this.prisma.client.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+    const isModerator =
+      requester?.role === 'MODERATOR' || requester?.role === 'ADMIN';
+
+    if (post.userId !== userId && !isModerator) {
+      throw new ForbiddenException(
+        'Você só pode editar suas próprias publicações',
+      );
+    }
+
+    const data: Prisma.PostUpdateInput = {};
+    if (dto.content !== undefined) data.content = dto.content;
+    if (dto.topic !== undefined) data.topic = dto.topic || null;
+    if (dto.photo !== undefined) data.photo = dto.photo ?? null;
+    if (dto.catchInfo !== undefined) {
+      data.catchInfo = dto.catchInfo ? { ...dto.catchInfo } : Prisma.DbNull;
+    }
+
+    await this.prisma.client.post.update({
+      where: { id: postId },
+      data,
+    });
+
+    this.logger.log(`Post updated: ${postId} by user ${userId}`);
+    return this.findOne(postId, userId);
   }
 
   async remove(postId: string, userId: string) {
@@ -357,6 +393,7 @@ export class PostsService {
       followedByMe,
       commentsCount: post._count.comments,
       createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
       author: post.user,
     };
   }
