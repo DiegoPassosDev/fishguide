@@ -1,10 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Camera, Fish, Images, LocateFixed, Send, X } from "lucide-react";
+import { Camera, Fish, Images, Loader2, LocateFixed, Send, X } from "lucide-react";
 import type { ChangeEvent } from "react";
 import { useToast } from "@/contexts/ToastContext";
-import type { PostCatch } from "./types";
+import type { PostCatchInfo } from "@/types/community";
 
 interface ComposerModalProps {
   topics: string[];
@@ -12,9 +12,9 @@ interface ComposerModalProps {
   onPublish: (draft: {
     topic: string;
     content: string;
-    catch?: PostCatch;
+    catchInfo?: PostCatchInfo;
     photoUrl?: string;
-  }) => void;
+  }) => Promise<boolean>;
 }
 
 const inputClass =
@@ -31,6 +31,7 @@ export function ComposerModal({ topics, onClose, onPublish }: ComposerModalProps
   const [tide, setTide] = useState("");
   const [photoUrl, setPhotoUrl] = useState<string>();
   const [locating, setLocating] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const cameraInput = useRef<HTMLInputElement>(null);
   const galleryInput = useRef<HTMLInputElement>(null);
 
@@ -91,7 +92,7 @@ export function ComposerModal({ topics, onClose, onPublish }: ComposerModalProps
     );
   }
 
-  function handlePublish() {
+  async function handlePublish() {
     const subject = topic.trim();
     const text = content.trim();
     if (!subject) {
@@ -102,21 +103,27 @@ export function ComposerModal({ topics, onClose, onPublish }: ComposerModalProps
       showToast("Escreva algo para publicar.", "error");
       return;
     }
-    onPublish({
-      topic: subject,
-      content: text,
-      photoUrl,
-      catch:
-        includeCatch && species.trim()
-          ? {
-              species: species.trim(),
-              weight: weight.trim() || "-",
-              location: location.trim() || "-",
-              tide: tide.trim() || "-",
-            }
-          : undefined,
-    });
-    onClose();
+    if (publishing) return;
+    setPublishing(true);
+    try {
+      const ok = await onPublish({
+        topic: subject,
+        content: text,
+        photoUrl,
+        catchInfo:
+          includeCatch && species.trim()
+            ? {
+                species: species.trim() || undefined,
+                weight: weight.trim() || undefined,
+                location: location.trim() || undefined,
+                tide: tide.trim() || undefined,
+              }
+            : undefined,
+      });
+      if (ok) onClose();
+    } finally {
+      setPublishing(false);
+    }
   }
 
   return (
@@ -307,16 +314,22 @@ export function ComposerModal({ topics, onClose, onPublish }: ComposerModalProps
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-full border border-border bg-background py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+            disabled={publishing}
+            className="flex-1 rounded-full border border-border bg-background py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:opacity-50"
           >
             Cancelar
           </button>
           <button
             type="button"
-            onClick={handlePublish}
-            className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            onClick={() => void handlePublish()}
+            disabled={publishing}
+            className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-70"
           >
-            <Send size={16} />
+            {publishing ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Send size={16} />
+            )}
             Publicar
           </button>
         </div>

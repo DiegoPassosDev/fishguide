@@ -54,6 +54,9 @@ model User {
   comments     Comment[]
   reviews      Review[]
   favorites    Favorite[]
+  postLikes    PostLike[]
+  followers    Follow[]   @relation("Following")
+  following    Follow[]   @relation("Followers")
 
   @@map("users")
 }
@@ -158,17 +161,45 @@ model Catch {
 model Post {
   id        String   @id @default(uuid()) @db.Uuid
   content   String
+  topic     String?
+  photo     String?
+  catchInfo Json?   @map("catch_info")
+  likes     Int      @default(0)
+  shares    Int      @default(0)
   userId    String   @map("user_id") @db.Uuid
   user      User     @relation(fields: [userId], references: [id])
-  likes     Int      @default(0)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   comments  Comment[]
   favorites Favorite[]
+  postLikes PostLike[]
 
   @@map("posts")
+}
+
+model PostLike {
+  userId    String   @map("user_id") @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  post      Post     @relation(fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@id([userId, postId])
+  @@map("post_likes")
+}
+
+model Follow {
+  id          String   @id @default(uuid()) @db.Uuid
+  followerId  String   @map("follower_id") @db.Uuid
+  followingId String   @map("following_id") @db.Uuid
+  follower    User     @relation("Followers", fields: [followerId], references: [id])
+  following   User     @relation("Following", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([followerId, followingId])
+  @@map("follows")
 }
 
 model Comment {
