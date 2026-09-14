@@ -238,6 +238,71 @@ async function main() {
     console.log(`✅ Post criado: ${postData.topic}`);
   }
 
+  console.log('🌱 Seeding fishing spot reviews...');
+
+  const reviewerIds = { owner: owner.id, marina: sampleUserIds[0], carlos: sampleUserIds[1] };
+
+  const sampleReviews = [
+    {
+      spotName: 'Praia do Saco',
+      reviews: [
+        { userId: reviewerIds.marina, rating: 5, comment: 'Excelente para robalo na maré enchendo. Fui cedo e saí com 2 exemplares.' },
+        { userId: reviewerIds.carlos, rating: 4, comment: 'Bom pesqueiro, mas lota nos fins de semana. Chegue cedo.' },
+      ],
+    },
+    {
+      spotName: 'Costão da Ilha',
+      reviews: [
+        { userId: reviewerIds.marina, rating: 5, comment: 'Corvina garantida à noite. Acesso só de barco, vale o deslocamento.' },
+      ],
+    },
+    {
+      spotName: 'Rio Vaza Barris',
+      reviews: [
+        { userId: reviewerIds.carlos, rating: 3, comment: 'Difícil acesso, mas a pesca na vazante compensa.' },
+      ],
+    },
+    {
+      spotName: 'Canal do Atalaia',
+      reviews: [
+        { userId: reviewerIds.owner, rating: 5, comment: 'Canal perfeito na maré enchendo. Estrutura bem conservada.' },
+      ],
+    },
+  ];
+
+  for (const group of sampleReviews) {
+    const spot = await prisma.fishingSpot.findFirst({
+      where: { name: group.spotName, deletedAt: null },
+    });
+    if (!spot) {
+      console.log(`⚠️  Pesqueiro não encontrado para reviews: ${group.spotName}`);
+      continue;
+    }
+
+    for (const review of group.reviews) {
+      await prisma.review.upsert({
+        where: { userId_spotId: { userId: review.userId, spotId: spot.id } },
+        update: { rating: review.rating, comment: review.comment },
+        create: { ...review, spotId: spot.id },
+      });
+    }
+
+    const aggregation = await prisma.review.aggregate({
+      where: { spotId: spot.id },
+      _avg: { rating: true },
+      _count: true,
+    });
+
+    if (aggregation._count > 0) {
+      await prisma.fishingSpot.update({
+        where: { id: spot.id },
+        data: { rating: Math.round((aggregation._avg.rating ?? 0) * 10) / 10 },
+      });
+    }
+
+    console.log(`✅ Reviews do pesqueiro: ${group.spotName}`);
+  }
+
   console.log('🌱 Seed concluído.');
 }
 
