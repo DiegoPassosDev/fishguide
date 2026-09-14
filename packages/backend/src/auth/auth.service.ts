@@ -73,7 +73,8 @@ export class AuthService {
       data: { lastLogin: new Date() },
     });
 
-    const { passwordHash: _, ...user } = row;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { passwordHash: _discarded, ...user } = row;
     return this.signToken(user);
   }
 

@@ -110,7 +110,7 @@ export class FgScoreService {
       tideData,
       astronomyData,
     );
-    const solunar = this.computeSolunar(lat, lon, astronomyData);
+    const solunar = this.computeSolunar(lat, lon);
     const opportunities = this.computeOpportunities(
       score,
       solunar,
@@ -306,14 +306,9 @@ export class FgScoreService {
 
   // --- Solunar ---
 
-  private computeSolunar(
-    lat: number,
-    lon: number,
-    astronomy: AstronomyData | null,
-  ): SolunarData {
+  private computeSolunar(lat: number, lon: number): SolunarData {
     const now = new Date();
     const moonTimes = SunCalc.getMoonTimes(now, lat, lon);
-    const moonPos = SunCalc.getMoonPosition(now, lat, lon);
     const phases = this.getSolunarPhases(now, lat, lon);
 
     const major: SolunarPeriod[] = [];
@@ -363,8 +358,6 @@ export class FgScoreService {
       activity: 'MUITO ALTA' | 'ALTA' | 'MÉDIA' | 'BAIXA';
       isMajor: boolean;
     }> = [];
-
-    const upperTransit = SunCalc.getMoonIllumination(now);
 
     for (let h = 0; h < 24; h++) {
       const checkTime = new Date(today.getTime() + h * 60 * 60 * 1000);
@@ -551,10 +544,13 @@ export class FgScoreService {
       });
     }
 
-    return opportunities
-      .sort((a, b) => b.matchScore - a.matchScore)
-      .slice(0, 3)
-      .map(({ matchScore: _, ...rest }) => rest);
+    return (
+      opportunities
+        .sort((a, b) => b.matchScore - a.matchScore)
+        .slice(0, 3)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .map(({ matchScore: _discarded, ...rest }) => rest)
+    );
   }
 
   // --- Reasons ---
