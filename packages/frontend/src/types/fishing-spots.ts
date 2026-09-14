@@ -45,15 +45,37 @@ export interface SpotReview {
   rating: number;
   comment?: string | null;
   createdAt: string;
+  isMine?: boolean;
   user: {
     id: string;
     name: string;
+    avatar?: string | null;
+    verified?: boolean;
   };
 }
 
 export interface FishingSpotDetail extends FishingSpotSummary {
   species: SpotSpecies[];
   reviews: SpotReview[];
+  reviewsCount: number;
+}
+
+export interface ReviewListResponse {
+  items: SpotReview[];
+  total: number;
+  page: number;
+  limit: number;
+  average: number;
+}
+
+export interface CreateReviewDto {
+  rating: number;
+  comment?: string;
+}
+
+export interface UpdateReviewDto {
+  rating?: number;
+  comment?: string;
 }
 
 export interface PaginatedFishingSpots {

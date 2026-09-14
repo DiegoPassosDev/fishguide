@@ -91,13 +91,25 @@ export function SpotDetailCard({ spot, detail, loading, onClose }: SpotDetailCar
           )}
           <span className="font-semibold text-muted-foreground">{spot.distanceKm} km</span>
         </div>
-        <button
-          type="button"
-          className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground transition-opacity hover:opacity-90"
-        >
-          <Navigation size={13} />
-          Ver rota
-        </button>
+        <div className="flex items-center gap-2">
+          {isSpot && (
+            <button
+              type="button"
+              onClick={() => router.push(`/spot/${spot.id}`)}
+              className="flex items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-xs font-bold text-foreground transition-colors hover:bg-muted"
+            >
+              <Star size={13} className="text-amber-500" />
+              Avaliações
+            </button>
+          )}
+          <button
+            type="button"
+            className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            <Navigation size={13} />
+            Ver rota
+          </button>
+        </div>
       </div>
     </div>
   );

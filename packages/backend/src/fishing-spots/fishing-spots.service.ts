@@ -119,17 +119,21 @@ export class FishingSpotsService {
             rating: true,
             comment: true,
             createdAt: true,
-            user: { select: { id: true, name: true } },
+            user: { select: { id: true, name: true, avatar: true } },
           },
         },
+        _count: { select: { reviews: true } },
       },
     });
 
     if (!spot) throw new NotFoundException('Pesqueiro não encontrado');
 
+    const { _count, ...rest } = spot;
+
     return {
-      ...spot,
-      species: spot.species.map(({ species }) => species),
+      ...rest,
+      species: rest.species.map(({ species }) => species),
+      reviewsCount: _count.reviews,
     };
   }
 
