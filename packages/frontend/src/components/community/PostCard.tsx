@@ -7,6 +7,7 @@ import {
   Heart,
   Loader2,
   MessageCircle,
+  Pencil,
   Send,
   Share2,
   Trash2,
@@ -54,6 +55,7 @@ interface PostCardProps {
   onToggleLike: (id: string) => void;
   onShare: (id: string) => void;
   onFollow: (id: string) => void;
+  onEdit: (post: CommunityPost) => void;
   onDelete: (id: string) => void;
   onCommentAdded: (postId: string) => void;
   onCommentRemoved: (postId: string) => void;
@@ -64,6 +66,7 @@ export function PostCard({
   onToggleLike,
   onShare,
   onFollow,
+  onEdit,
   onDelete,
   onCommentAdded,
   onCommentRemoved,
@@ -77,6 +80,9 @@ export function PostCard({
   const [sending, setSending] = useState(false);
 
   const isOwn = user?.id === post.author.id;
+  const edited =
+    post.updatedAt &&
+    new Date(post.updatedAt).getTime() > new Date(post.createdAt).getTime();
 
   async function loadComments() {
     setCommentsLoading(true);
@@ -155,19 +161,32 @@ export function PostCard({
                 {post.topic}
               </span>
             )}
-            {timeAgo(post.createdAt)}
+            {edited
+              ? `editado ${timeAgo(post.updatedAt)}`
+              : timeAgo(post.createdAt)}
           </p>
         </div>
         {isOwn ? (
-          <button
-            type="button"
-            onClick={() => onDelete(post.id)}
-            className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-            aria-label="Excluir publicação"
-            title="Excluir publicação"
-          >
-            <Trash2 size={15} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => onEdit(post)}
+              className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+              aria-label="Editar publicação"
+              title="Editar publicação"
+            >
+              <Pencil size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => onDelete(post.id)}
+              className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+              aria-label="Excluir publicação"
+              title="Excluir publicação"
+            >
+              <Trash2 size={15} />
+            </button>
+          </div>
         ) : post.followedByMe ? (
           <button
             type="button"

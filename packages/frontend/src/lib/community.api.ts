@@ -4,6 +4,7 @@ import type {
   CommunityPost,
   CreatePostInput,
   TopicCount,
+  UpdatePostInput,
 } from "@/types/community";
 
 export async function fetchPosts(topic?: string): Promise<CommunityPost[]> {
@@ -20,6 +21,14 @@ export async function fetchTopics(): Promise<TopicCount[]> {
 
 export async function createPost(input: CreatePostInput): Promise<CommunityPost> {
   const response = await api.post<CommunityPost>("/posts", input);
+  return response.data;
+}
+
+export async function updatePost(
+  id: string,
+  input: UpdatePostInput,
+): Promise<CommunityPost> {
+  const response = await api.patch<CommunityPost>(`/posts/${id}`, input);
   return response.data;
 }
 

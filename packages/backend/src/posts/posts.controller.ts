@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -14,6 +15,7 @@ import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { PostsService } from './posts.service.js';
 import { CreatePostDto } from './dto/create-post.dto.js';
+import { UpdatePostDto } from './dto/update-post.dto.js';
 import { CreateCommentDto } from './dto/create-comment.dto.js';
 import { ListPostsQueryDto } from './dto/list-posts-query.dto.js';
 
@@ -56,6 +58,17 @@ export class PostsController {
   remove(@Param('id') id: string, @Req() req: Request) {
     const user = req.user as { id: string };
     return this.posts.remove(id, user.id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Editar publicação própria (ou moderação)' })
+  update(
+    @Param('id') id: string,
+    @Req() req: Request,
+    @Body() dto: UpdatePostDto,
+  ) {
+    const user = req.user as { id: string };
+    return this.posts.update(id, user.id, dto);
   }
 
   @Post(':id/like')

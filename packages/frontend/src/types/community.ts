@@ -24,6 +24,7 @@ export interface CommunityPost {
   followedByMe: boolean;
   commentsCount: number;
   createdAt: string;
+  updatedAt: string;
   author: CommunityAuthor;
 }
 
@@ -44,4 +45,11 @@ export interface CreatePostInput {
   topic?: string;
   photo?: string;
   catchInfo?: PostCatchInfo;
+}
+
+export interface UpdatePostInput {
+  content?: string;
+  topic?: string;
+  photo?: string | null;
+  catchInfo?: PostCatchInfo | null;
 }
