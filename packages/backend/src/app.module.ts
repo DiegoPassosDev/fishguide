@@ -11,6 +11,7 @@ import { TidesModule } from './tides/tides.module.js';
 import { AstronomyModule } from './astronomy/astronomy.module.js';
 import { FgScoreModule } from './fg-score/fg-score.module.js';
 import { FishingTripsModule } from './fishing-trips/fishing-trips.module.js';
+import { PostsModule } from './posts/posts.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
@@ -28,6 +29,7 @@ import { AppService } from './app.service.js';
     AstronomyModule,
     FgScoreModule,
     FishingTripsModule,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

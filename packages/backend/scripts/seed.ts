@@ -151,6 +151,93 @@ async function main() {
     console.log(`✅ Pesqueiro criado: ${spot.name}`);
   }
 
+  console.log('🌱 Seeding community posts...');
+
+  const sampleUsers = [
+    { email: 'marina@fishguide.app', name: 'Marina Costa' },
+    { email: 'carlos@fishguide.app', name: 'Carlos Passos' },
+  ];
+
+  const sampleUserIds: string[] = [];
+  for (const sample of sampleUsers) {
+    const existing = await prisma.user.findUnique({ where: { email: sample.email } });
+    if (existing) {
+      sampleUserIds.push(existing.id);
+      continue;
+    }
+    const created = await prisma.user.create({
+      data: {
+        email: sample.email,
+        name: sample.name,
+        passwordHash,
+      },
+    });
+    sampleUserIds.push(created.id);
+    console.log(`✅ Usuário de exemplo criado: ${sample.name}`);
+  }
+
+  const samplePosts = [
+    {
+      userId: sampleUserIds[0],
+      topic: 'Robalo',
+      content:
+        'Manhã mágica no Saco! Robalo de 4,2 kg na maré enchendo. Isca: camarão vivo.',
+      catchInfo: {
+        species: 'Robalo',
+        weight: '4,2 kg',
+        location: 'Praia do Saco',
+        tide: 'Enchendo',
+      },
+    },
+    {
+      userId: sampleUserIds[1],
+      topic: 'Dicas',
+      content:
+        'Dica de hoje: observe as aves. Garças concentradas indicam cardume ativo de sardinha, e o robalo vem logo atrás.',
+    },
+    {
+      userId: sampleUserIds[0],
+      topic: 'Corvina',
+      content:
+        'Corvinas grandes no Costão da Ilha essa noite. Foto só da maior, 3,1 kg.',
+      catchInfo: {
+        species: 'Corvina',
+        weight: '3,1 kg',
+        location: 'Costão da Ilha',
+        tide: 'Noite',
+      },
+    },
+    {
+      userId: sampleUserIds[1],
+      topic: 'Tainha',
+      content:
+        'Receita de tainha assada com a pescaria de ontem. Compartilho o passo a passo se quiserem!',
+    },
+  ];
+
+  for (const postData of samplePosts) {
+    const existing = await prisma.post.findFirst({
+      where: { content: postData.content, deletedAt: null },
+    });
+    if (existing) continue;
+
+    const post = await prisma.post.create({ data: postData });
+
+    await prisma.postLike.create({ data: { userId: owner.id, postId: post.id } });
+    await prisma.post.update({
+      where: { id: post.id },
+      data: { likes: { increment: 1 } },
+    });
+
+    if (postData === samplePosts[0]) {
+      await prisma.comment.create({
+        data: { postId: post.id, userId: owner.id, content: 'Que robalo! Parabéns!' },
+      });
+    }
+
+    console.log(`✅ Post criado: ${postData.topic}`);
+  }
+
   console.log('🌱 Seed concluído.');
 }
 
