@@ -2,19 +2,17 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const publicPaths = ["/", "/login", "/register", "/forgot-password", "/species"];
+const guestOnlyPaths = ["/login", "/register", "/forgot-password"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("token")?.value;
 
-  const isPublic = publicPaths.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`),
-  );
+  if (token && guestOnlyPaths.some((path) => pathname === path)) {
+    return NextResponse.redirect(new URL("/today", request.url));
+  }
 
-  if (isPublic) {
-    if (token && pathname !== "/") {
-      return NextResponse.redirect(new URL("/today", request.url));
-    }
+  if (publicPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`))) {
     return NextResponse.next();
   }
 
