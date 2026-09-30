@@ -107,6 +107,7 @@ model Species {
 
   spots SpeciesOnSpot[]
   catches Catch[]
+  favorites Favorite[]
 
   @@map("species")
 }
@@ -234,10 +235,15 @@ model Favorite {
   user      User     @relation(fields: [userId], references: [id])
   spotId    String?  @map("spot_id") @db.Uuid
   spot      FishingSpot? @relation(fields: [spotId], references: [id])
+  speciesId String?  @map("species_id") @db.Uuid
+  species   Species? @relation(fields: [speciesId], references: [id])
   postId    String?  @map("post_id") @db.Uuid
   post      Post?    @relation(fields: [postId], references: [id])
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@unique([userId, spotId], map: "user_id_spot_id")
+  @@unique([userId, speciesId], map: "user_id_species_id")
+  @@index([userId])
   @@map("favorites")
 }
 

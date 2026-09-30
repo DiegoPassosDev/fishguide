@@ -17,7 +17,7 @@ export function NearbySpotsSheet({ spots, selectedId, onSelect }: NearbySpotsShe
   const selected = spots.find((s) => s.id === selectedId) ?? null;
 
   return (
-    <div className="rounded-t-3xl border border-b-0 border-border bg-card shadow-[0_-8px_24px_rgba(10,22,40,0.12)]">
+    <div className="rounded-t-3xl border border-b-0 border-border bg-background/95 shadow-[0_-8px_24px_rgba(10,22,40,0.12)] backdrop-blur-sm">
       <div className="flex justify-center pt-2">
         <span className="h-1 w-10 rounded-full bg-border" />
       </div>

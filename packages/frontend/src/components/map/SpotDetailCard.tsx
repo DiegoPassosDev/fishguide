@@ -5,22 +5,24 @@ import { Fish, Navigation, Star, X } from "lucide-react";
 import { CATEGORIES } from "./categories";
 import type { MapSpot } from "./types";
 import type { FishingSpotDetail } from "@/types/fishing-spots";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 
 interface SpotDetailCardProps {
   spot: MapSpot;
   detail?: FishingSpotDetail | null;
   loading?: boolean;
   onClose: () => void;
+  onFavoriteChange?: () => void;
 }
 
-export function SpotDetailCard({ spot, detail, loading, onClose }: SpotDetailCardProps) {
+export function SpotDetailCard({ spot, detail, loading, onClose, onFavoriteChange }: SpotDetailCardProps) {
   const router = useRouter();
   const cat = CATEGORIES[spot.category];
   const Icon = cat.icon;
   const isSpot = spot.category === "pesqueiro";
 
   return (
-    <div className="rounded-3xl border border-border bg-card p-4 shadow-xl">
+    <div className="rounded-3xl border border-border bg-background/95 p-4 shadow-xl backdrop-blur-sm">
       <div className="flex items-start gap-3">
         <span
           className="flex size-10 shrink-0 items-center justify-center rounded-full"
@@ -31,14 +33,19 @@ export function SpotDetailCard({ spot, detail, loading, onClose }: SpotDetailCar
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <h3 className="truncate text-sm font-bold text-foreground">{spot.name}</h3>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-muted-foreground transition-colors hover:text-foreground"
-              aria-label="Fechar"
-            >
-              <X size={16} />
-            </button>
+            <div className="flex shrink-0 items-center gap-1">
+              {isSpot && detail && typeof spot.id === "string" && (
+                <FavoriteButton target="spot" id={spot.id} initialFavorited={detail.isFavorited} onChange={onFavoriteChange} />
+              )}
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                aria-label="Fechar"
+              >
+                <X size={16} />
+              </button>
+            </div>
           </div>
           <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: cat.color }}>
             {cat.label}

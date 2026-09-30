@@ -20,7 +20,9 @@ import { AboutCard } from "@/components/profile/AboutCard";
 import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
 import { useAuth } from "@/contexts/useAuth";
 import { fetchMyGamification } from "@/lib/gamification.api";
+import { getMyFavorites } from "@/lib/favorites.api";
 import type { GamificationProfile } from "@/types/gamification";
+import type { MyFavorites } from "@/types/favorites";
 
 const mock = {
   gear: [
@@ -28,8 +30,6 @@ const mock = {
     { name: "Molinete 3000", detail: "Cubo de metal · 4 rolamentos" },
     { name: "Caixa de iscas", detail: "Camarão vivo + manzuá" },
   ],
-  species: ["Robalo", "Corvina", "Tainha", "Bagre"],
-  spots: ["Praia do Saco", "Praia do Centro", "Ilha do Guará"],
 };
 
 export default function ProfilePage() {
@@ -37,6 +37,8 @@ export default function ProfilePage() {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [gamification, setGamification] = useState<GamificationProfile | null>(null);
+  const [favorites, setFavorites] = useState<MyFavorites | null>(null);
+  const [loadingFavorites, setLoadingFavorites] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,6 +48,16 @@ export default function ProfilePage() {
       })
       .catch(() => {
         // mantém cartões sem dados reais
+      });
+    getMyFavorites()
+      .then((data) => {
+        if (!cancelled) setFavorites(data);
+      })
+      .catch(() => {
+        // mantém o card de favoritos vazio
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingFavorites(false);
       });
     return () => {
       cancelled = true;
@@ -109,7 +121,7 @@ export default function ProfilePage() {
           )}
 
           <GearCard gear={mock.gear} />
-          <FavoritesCard species={mock.species} spots={mock.spots} />
+          <FavoritesCard species={favorites?.species ?? []} spots={favorites?.spots ?? []} loading={loadingFavorites} />
           <PreferencesCard />
           <UnitsCard />
           <NotificationsCard />

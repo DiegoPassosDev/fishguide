@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { getSpeciesById } from "@/lib/species.api";
 import type { SpeciesDetail } from "@/types/species";
 
@@ -92,10 +93,20 @@ export default function SpeciesDetailPage() {
                   <Fish size={34} className="text-primary" />
                 </span>
               )}
-              <h1 className="mt-3 font-heading text-2xl font-bold text-foreground">{species.name}</h1>
-              {species.scientificName && (
-                <p className="text-sm italic text-muted-foreground">{species.scientificName}</p>
-              )}
+              <div className="mt-3 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h1 className="font-heading text-2xl font-bold text-foreground">{species.name}</h1>
+                  {species.scientificName && (
+                    <p className="text-sm italic text-muted-foreground">{species.scientificName}</p>
+                  )}
+                </div>
+                <FavoriteButton
+                  target="species"
+                  id={species.id}
+                  initialFavorited={species.isFavorited}
+                  showLabel
+                />
+              </div>
               <div className="mt-4 flex gap-2">
                 <span className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
                   <Ruler size={13} />

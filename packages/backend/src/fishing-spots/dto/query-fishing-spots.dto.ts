@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -15,6 +16,18 @@ export class QueryFishingSpotsDto {
   @IsString()
   @IsOptional()
   search?: string;
+
+  @ApiPropertyOptional({
+    description: 'Somente pesqueiros favoritados pelo usuário autenticado',
+  })
+  @Transform(({ value }) =>
+    value === undefined || value === ''
+      ? undefined
+      : value === true || value === 'true' || value === '1',
+  )
+  @IsBoolean()
+  @IsOptional()
+  favorite?: boolean;
 
   @ApiPropertyOptional({
     description: 'Filtro por tipo de água',

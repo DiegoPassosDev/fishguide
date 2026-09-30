@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { Fish, Search, X } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { getSpecies } from "@/lib/species.api";
+import { getMyFavorites } from "@/lib/favorites.api";
 import type { Species } from "@/types/species";
 
 export default function SpeciesPage() {
@@ -13,6 +15,13 @@ export default function SpeciesPage() {
   const [query, setQuery] = useState("");
   const [species, setSpecies] = useState<Species[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(() => new Set());
+
+  useEffect(() => {
+    getMyFavorites()
+      .then((data) => setFavoriteIds(new Set(data.species.map((s) => s.id))))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -97,40 +106,57 @@ export default function SpeciesPage() {
         ) : (
           <div className="space-y-3">
             {results.map((s) => (
-              <button
+              <div
                 key={s.id}
-                type="button"
-                onClick={() => router.push(`/species/${s.id}`)}
-                className="flex w-full items-center gap-3 rounded-3xl border border-border bg-card p-3 text-left transition-colors hover:border-primary/40"
+                className="flex w-full items-center gap-1 rounded-3xl border border-border bg-card p-3 transition-colors hover:border-primary/40"
               >
-                {s.photo ? (
-                  <img
-                    src={s.photo}
-                    alt={s.name}
-                    className="size-12 shrink-0 rounded-2xl bg-primary/10 object-contain"
-                    loading="lazy"
-                  />
-                ) : (
-                  <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
-                    <Fish size={22} className="text-primary" />
-                  </span>
-                )}
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-bold text-foreground">
-                    {s.name}
-                  </span>
-                  {s.scientificName && (
-                    <span className="block truncate text-xs italic text-muted-foreground">
-                      {s.scientificName}
+                <button
+                  type="button"
+                  onClick={() => router.push(`/species/${s.id}`)}
+                  className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                >
+                  {s.photo ? (
+                    <img
+                      src={s.photo}
+                      alt={s.name}
+                      className="size-12 shrink-0 rounded-2xl bg-primary/10 object-contain"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
+                      <Fish size={22} className="text-primary" />
                     </span>
                   )}
-                  <span className="mt-0.5 block text-[11px] text-muted-foreground">
-                    {[s.averageLength && `${s.averageLength} cm`, s.averageWeight && `${s.averageWeight} kg`]
-                      .filter(Boolean)
-                      .join(" · ") || s.habitat || "Sem detalhes"}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-bold text-foreground">
+                      {s.name}
+                    </span>
+                    {s.scientificName && (
+                      <span className="block truncate text-xs italic text-muted-foreground">
+                        {s.scientificName}
+                      </span>
+                    )}
+                    <span className="mt-0.5 block text-[11px] text-muted-foreground">
+                      {[s.averageLength && `${s.averageLength} cm`, s.averageWeight && `${s.averageWeight} kg`]
+                        .filter(Boolean)
+                        .join(" · ") || s.habitat || "Sem detalhes"}
+                    </span>
                   </span>
-                </span>
-              </button>
+                </button>
+                <FavoriteButton
+                  target="species"
+                  id={s.id}
+                  initialFavorited={favoriteIds.has(s.id)}
+                  onChange={(result) =>
+                    setFavoriteIds((prev) => {
+                      const next = new Set(prev);
+                      if (result.favorited) next.add(s.id);
+                      else next.delete(s.id);
+                      return next;
+                    })
+                  }
+                />
+              </div>
             ))}
           </div>
         )}

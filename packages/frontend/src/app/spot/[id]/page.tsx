@@ -14,6 +14,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { ReviewCard } from "@/components/spot/ReviewCard";
 import { ReviewModal } from "@/components/spot/ReviewModal";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { useToast } from "@/contexts/ToastContext";
 import {
   createReview,
@@ -173,10 +174,18 @@ export default function SpotDetailPage() {
                         : ""}
                     </p>
                   </div>
-                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1.5 text-sm font-bold text-amber-500">
-                    <Star size={14} className="fill-amber-500 text-amber-500" />
-                    {reviews.average > 0 ? reviews.average.toFixed(1) : "—"}
-                  </span>
+                  <div className="flex shrink-0 flex-col items-end gap-2">
+                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1.5 text-sm font-bold text-amber-500">
+                      <Star size={14} className="fill-amber-500 text-amber-500" />
+                      {reviews.average > 0 ? reviews.average.toFixed(1) : "—"}
+                    </span>
+                    <FavoriteButton
+                      target="spot"
+                      id={spot.id}
+                      initialFavorited={spot.isFavorited}
+                      showLabel
+                    />
+                  </div>
                 </div>
 
                 <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">

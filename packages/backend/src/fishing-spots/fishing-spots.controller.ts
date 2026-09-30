@@ -13,6 +13,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard.js';
 import { FishingSpotsService } from './fishing-spots.service.js';
 import { CreateFishingSpotDto } from './dto/create-fishing-spot.dto.js';
 import { UpdateFishingSpotDto } from './dto/update-fishing-spot.dto.js';
@@ -24,15 +25,21 @@ export class FishingSpotsController {
   constructor(private fishingSpots: FishingSpotsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Listar pesqueiros (público)' })
-  findAll(@Query() query: QueryFishingSpotsDto) {
-    return this.fishingSpots.findAll(query);
+  @UseGuards(OptionalJwtAuthGuard)
+  @ApiOperation({
+    summary: 'Listar pesqueiros (público; use favorite=true para os favoritos)',
+  })
+  findAll(@Query() query: QueryFishingSpotsDto, @Req() req: Request) {
+    const user = req.user as { id: string; role: string } | undefined;
+    return this.fishingSpots.findAll(query, user);
   }
 
   @Get(':id')
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: 'Obter detalhes de um pesqueiro (público)' })
-  findOne(@Param('id') id: string) {
-    return this.fishingSpots.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as { id: string; role: string } | undefined;
+    return this.fishingSpots.findOne(id, user);
   }
 
   @Post()

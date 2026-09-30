@@ -15,6 +15,7 @@ export const XP_RULES = {
   catch: 10,
   reviewGiven: 10,
   spotCreated: 25,
+  favoriteGiven: 2,
 } as const;
 
 export const LEVELS = [
