@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
@@ -36,16 +37,23 @@ interface RequestUser {
 export class FishingSpotsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(query: QueryFishingSpotsDto) {
+  async findAll(query: QueryFishingSpotsDto, user?: RequestUser) {
     const {
       search,
       spotType,
       latitude,
       longitude,
       radiusKm,
+      favorite,
       limit = 50,
       offset = 0,
     } = query;
+
+    if (favorite && !user) {
+      throw new UnauthorizedException(
+        'Faça login para ver seus pesqueiros favoritos',
+      );
+    }
 
     const where: Record<string, unknown> = {
       deletedAt: null,
@@ -60,9 +68,17 @@ export class FishingSpotsService {
       where.spotType = spotType;
     }
 
+    if (favorite && user) {
+      where.favorites = { some: { userId: user.id } };
+    }
+
     let items = await this.prisma.client.fishingSpot.findMany({
       where,
-      select: { ...SPOT_SELECT, user: { select: { id: true, name: true } } },
+      select: {
+        ...SPOT_SELECT,
+        user: { select: { id: true, name: true } },
+        _count: { select: { favorites: true } },
+      },
       orderBy: { name: 'asc' },
       take: limit,
       skip: offset,
@@ -80,19 +96,28 @@ export class FishingSpotsService {
       });
     }
 
+    const favoritedIds = await this.favoritedSpotIds(
+      user?.id,
+      items.map((spot) => spot.id),
+    );
+
     const [total] = await Promise.all([
       this.prisma.client.fishingSpot.count({ where }),
     ]);
 
     return {
-      items,
+      items: items.map(({ _count, ...spot }) => ({
+        ...spot,
+        favoritesCount: _count.favorites,
+        isFavorited: favoritedIds.has(spot.id),
+      })),
       total,
       limit,
       offset,
     };
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, user?: RequestUser) {
     const spot = await this.prisma.client.fishingSpot.findFirst({
       where: { id, deletedAt: null },
       select: {
@@ -122,18 +147,21 @@ export class FishingSpotsService {
             user: { select: { id: true, name: true, avatar: true } },
           },
         },
-        _count: { select: { reviews: true } },
+        _count: { select: { reviews: true, favorites: true } },
       },
     });
 
     if (!spot) throw new NotFoundException('Pesqueiro não encontrado');
 
     const { _count, ...rest } = spot;
+    const favoritedIds = await this.favoritedSpotIds(user?.id, [id]);
 
     return {
       ...rest,
       species: rest.species.map(({ species }) => species),
       reviewsCount: _count.reviews,
+      favoritesCount: _count.favorites,
+      isFavorited: favoritedIds.has(id),
     };
   }
 
@@ -208,6 +236,20 @@ export class FishingSpotsService {
     });
 
     return { deleted: true };
+  }
+
+  private async favoritedSpotIds(
+    userId: string | undefined,
+    spotIds: string[],
+  ): Promise<Set<string>> {
+    if (!userId || spotIds.length === 0) return new Set();
+
+    const favorites = await this.prisma.client.favorite.findMany({
+      where: { userId, spotId: { in: spotIds } },
+      select: { spotId: true },
+    });
+
+    return new Set(favorites.flatMap(({ spotId }) => (spotId ? [spotId] : [])));
   }
 
   private haversineKm(lat1: number, lon1: number, lat2: number, lon2: number) {

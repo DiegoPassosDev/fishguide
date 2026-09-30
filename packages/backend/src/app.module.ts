@@ -13,6 +13,7 @@ import { FgScoreModule } from './fg-score/fg-score.module.js';
 import { FishingTripsModule } from './fishing-trips/fishing-trips.module.js';
 import { PostsModule } from './posts/posts.module.js';
 import { ReviewsModule } from './reviews/reviews.module.js';
+import { FavoritesModule } from './favorites/favorites.module.js';
 import { GamificationModule } from './gamification/gamification.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
@@ -33,6 +34,7 @@ import { AppService } from './app.service.js';
     FishingTripsModule,
     PostsModule,
     ReviewsModule,
+    FavoritesModule,
     GamificationModule,
   ],
   controllers: [AppController],

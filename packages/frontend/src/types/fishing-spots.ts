@@ -24,6 +24,8 @@ export interface FishingSpotSummary {
   rating: number;
   createdAt: string;
   updatedAt: string;
+  favoritesCount?: number;
+  isFavorited?: boolean;
   user: {
     id: string;
     name: string;
@@ -58,6 +60,8 @@ export interface FishingSpotDetail extends FishingSpotSummary {
   species: SpotSpecies[];
   reviews: SpotReview[];
   reviewsCount: number;
+  favoritesCount: number;
+  isFavorited: boolean;
 }
 
 export interface ReviewListResponse {
@@ -91,6 +95,7 @@ export interface QueryFishingSpots {
   latitude?: number;
   longitude?: number;
   radiusKm?: number;
+  favorite?: boolean;
   limit?: number;
   offset?: number;
 }

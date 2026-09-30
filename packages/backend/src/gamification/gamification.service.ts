@@ -18,6 +18,7 @@ interface UserStats {
   species: number;
   reviews: number;
   spots: number;
+  favorites: number;
   distinctSpots: number;
   biggestCatchKg: number | null;
 }
@@ -31,6 +32,7 @@ export interface XpBreakdown {
   catches: number;
   reviews: number;
   spots: number;
+  favorites: number;
 }
 
 export interface AchievementResult {
@@ -197,6 +199,7 @@ export class GamificationService {
       catches,
       reviews,
       spots,
+      favorites,
     ] = await Promise.all([
       this.prisma.client.post.groupBy({
         by: ['userId'],
@@ -242,6 +245,11 @@ export class GamificationService {
       this.prisma.client.fishingSpot.groupBy({
         by: ['userId'],
         where: { ...whereUser, deletedAt: null },
+        _count: true,
+      }),
+      this.prisma.client.favorite.groupBy({
+        by: ['userId'],
+        where: whereUser,
         _count: true,
       }),
     ]);
@@ -333,6 +341,12 @@ export class GamificationService {
       stats.spots += row._count;
     }
 
+    for (const row of favorites) {
+      const stats = map.get(row.userId);
+      if (!stats) continue;
+      stats.favorites += row._count;
+    }
+
     return map;
   }
 
@@ -348,6 +362,7 @@ export class GamificationService {
       species: 0,
       reviews: 0,
       spots: 0,
+      favorites: 0,
       distinctSpots: 0,
       biggestCatchKg: null,
     };
@@ -362,7 +377,8 @@ export class GamificationService {
       stats.trips * XP_RULES.tripFinished +
       stats.catches * XP_RULES.catch +
       stats.reviews * XP_RULES.reviewGiven +
-      stats.spots * XP_RULES.spotCreated
+      stats.spots * XP_RULES.spotCreated +
+      stats.favorites * XP_RULES.favoriteGiven
     );
   }
 
@@ -376,6 +392,7 @@ export class GamificationService {
       catches: stats.catches * XP_RULES.catch,
       reviews: stats.reviews * XP_RULES.reviewGiven,
       spots: stats.spots * XP_RULES.spotCreated,
+      favorites: stats.favorites * XP_RULES.favoriteGiven,
     };
   }
 

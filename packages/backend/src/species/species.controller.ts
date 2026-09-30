@@ -13,6 +13,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard.js';
 import { SpeciesService } from './species.service.js';
 import { CreateSpeciesDto } from './dto/create-species.dto.js';
 import { UpdateSpeciesDto } from './dto/update-species.dto.js';
@@ -30,9 +31,11 @@ export class SpeciesController {
   }
 
   @Get(':id')
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: 'Obter detalhes de uma espécie (público)' })
-  findOne(@Param('id') id: string) {
-    return this.species.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as { id: string; role: string } | undefined;
+    return this.species.findOne(id, user);
   }
 
   @Post()

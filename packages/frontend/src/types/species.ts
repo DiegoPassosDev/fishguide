@@ -26,6 +26,8 @@ export interface SpeciesSpot {
 
 export interface SpeciesDetail extends Species {
   spots: SpeciesSpot[];
+  favoritesCount: number;
+  isFavorited: boolean;
 }
 
 export interface PaginatedSpecies {

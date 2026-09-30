@@ -12,6 +12,7 @@ import { SpotDetailCard } from "@/components/map/SpotDetailCard";
 import { CATEGORY_ORDER } from "@/components/map/categories";
 import type { MapCategory, MapSpot } from "@/components/map/types";
 import { getFishingSpot, getFishingSpots } from "@/lib/fishing-spots.api";
+import { getMyFavorites } from "@/lib/favorites.api";
 import { haversineKm, projectToMap } from "@/lib/map";
 import type { FishingSpotDetail } from "@/types/fishing-spots";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -37,10 +38,22 @@ export default function MapaPage() {
   const [loading, setLoading] = useState(true);
   const [locating, setLocating] = useState(false);
   const [showMe, setShowMe] = useState(false);
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [favoritesCount, setFavoritesCount] = useState(0);
+
+  const refreshFavoritesCount = useCallback(() => {
+    getMyFavorites()
+      .then((data) => setFavoritesCount(data.spots.length))
+      .catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    refreshFavoritesCount();
+  }, [refreshFavoritesCount]);
 
   useEffect(() => {
     let cancelled = false;
-    getFishingSpots({ limit: 100 })
+    getFishingSpots({ limit: 100, favorite: favoritesOnly || undefined })
       .then((data) => {
         if (cancelled) return;
         const spots: MapSpot[] = data.items.map((spot) => {
@@ -57,6 +70,8 @@ export default function MapaPage() {
           };
         });
         setApiSpots(spots);
+        setSelectedId((prev) => (prev && spots.some((spot) => spot.id === prev) ? prev : null));
+        setSelectedDetail(null);
       })
       .catch(() => {
         if (!cancelled) setApiSpots([]);
@@ -67,9 +82,12 @@ export default function MapaPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [favoritesOnly]);
 
-  const spots = useMemo(() => [...mockSpots, ...apiSpots], [apiSpots]);
+  const spots = useMemo(
+    () => (favoritesOnly ? apiSpots : [...mockSpots, ...apiSpots]),
+    [apiSpots, favoritesOnly]
+  );
 
   const counts = useMemo(() => {
     const c = {} as Record<MapCategory, number>;
@@ -145,12 +163,19 @@ export default function MapaPage() {
 
         <div className="absolute inset-x-0 top-0 z-20 space-y-2 p-3">
           <MapSearchBar query={query} results={results} onQueryChange={setQuery} onSelect={handleSearchSelect} />
-          <MapFilters active={active} counts={counts} onToggle={toggleCategory} />
+          <MapFilters
+            active={active}
+            counts={counts}
+            onToggle={toggleCategory}
+            favoritesOnly={favoritesOnly}
+            favoritesCount={favoritesCount}
+            onToggleFavorites={() => setFavoritesOnly((prev) => !prev)}
+          />
         </div>
 
         {selected && (
-          <div className="absolute inset-x-3 bottom-21 z-20">
-            <SpotDetailCard spot={selected} detail={selectedDetail} loading={loading} onClose={() => handleSelect(null)} />
+          <div className="absolute inset-x-3 bottom-21 z-40">
+            <SpotDetailCard spot={selected} detail={selectedDetail} loading={loading} onClose={() => handleSelect(null)} onFavoriteChange={refreshFavoritesCount} />
           </div>
         )}
 
@@ -158,16 +183,18 @@ export default function MapaPage() {
           <button
             type="button"
             onClick={handleLocate}
-            className="absolute right-3 bottom-21 z-20 flex size-11 items-center justify-center rounded-full border border-border bg-card text-primary shadow-xl transition-transform hover:scale-105"
+            className="absolute right-3 bottom-21 z-20 flex size-11 items-center justify-center rounded-full border border-border bg-background/95 text-primary shadow-xl backdrop-blur-sm transition-transform hover:scale-105"
             aria-label="Minha localização"
           >
             <LocateFixed size={18} />
           </button>
         )}
 
-        <div className="absolute inset-x-0 bottom-0 z-20">
-          <NearbySpotsSheet spots={visible} selectedId={selectedId} onSelect={handleSelect} />
-        </div>
+        {!selected && (
+          <div className="absolute inset-x-0 bottom-21.5 z-20">
+            <NearbySpotsSheet spots={visible} selectedId={selectedId} onSelect={handleSelect} />
+          </div>
+        )}
       </main>
 
       <BottomNav />

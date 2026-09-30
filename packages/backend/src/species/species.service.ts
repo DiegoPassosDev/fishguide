@@ -66,7 +66,7 @@ export class SpeciesService {
     return { items, total, limit, offset };
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, user?: RequestUser) {
     const species = await this.prisma.client.species.findFirst({
       where: { id },
       select: {
@@ -85,14 +85,20 @@ export class SpeciesService {
             },
           },
         },
+        _count: { select: { favorites: true } },
       },
     });
 
     if (!species) throw new NotFoundException('Espécie não encontrada');
 
+    const { _count, ...rest } = species;
+    const favoritedIds = await this.favoritedSpeciesIds(user?.id, [id]);
+
     return {
-      ...species,
-      spots: species.spots.map(({ spot }) => spot),
+      ...rest,
+      spots: rest.spots.map(({ spot }) => spot),
+      favoritesCount: _count.favorites,
+      isFavorited: favoritedIds.has(id),
     };
   }
 
@@ -155,6 +161,22 @@ export class SpeciesService {
 
     await this.prisma.client.species.delete({ where: { id } });
     return { deleted: true };
+  }
+
+  private async favoritedSpeciesIds(
+    userId: string | undefined,
+    speciesIds: string[],
+  ): Promise<Set<string>> {
+    if (!userId || speciesIds.length === 0) return new Set();
+
+    const favorites = await this.prisma.client.favorite.findMany({
+      where: { userId, speciesId: { in: speciesIds } },
+      select: { speciesId: true },
+    });
+
+    return new Set(
+      favorites.flatMap(({ speciesId }) => (speciesId ? [speciesId] : [])),
+    );
   }
 
   private assertEditor(user: RequestUser) {

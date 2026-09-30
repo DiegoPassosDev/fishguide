@@ -76,7 +76,7 @@ export function MapCanvas({ spots, selectedId, activeCategories, locating, showM
 
       {visible.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="rounded-2xl border border-border bg-card px-4 py-3 text-center shadow-lg">
+          <div className="rounded-2xl border border-border bg-background/95 px-4 py-3 text-center shadow-lg backdrop-blur-sm">
             <p className="text-sm font-semibold text-foreground">Nenhuma categoria selecionada</p>
             <p className="text-xs text-muted-foreground">Ative os filtros acima para ver os locais no mapa.</p>
           </div>
